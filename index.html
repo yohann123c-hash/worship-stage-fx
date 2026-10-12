@@ -459,7 +459,7 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
       </div>
 
       <div class="master-actions">
-        <button class="btn btn-stop" id="btnStopAll">⏹ STOP ALL</button>
+        <button class="btn btn-stop" id="panicBtn">⏹ STOP ALL</button>
         <button class="btn btn-wake" id="btnWake">💡 TELA LIGADA</button>
       </div>
     </div>
@@ -545,22 +545,145 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
 </main>
 
 <script>
-/* ============================================================
-   FASE 1 — apenas placeholders de interação.
-   O motor de áudio / MIDI entra na Fase 2.
-   ============================================================ */
+/* FASE 2 — Web Audio API: colchão contínuo e análise em tempo real. */
 (function () {
   'use strict';
 
-  /* ---------- 1. Bloqueio de zoom por duplo toque ---------- */
-  var lastTouch = 0;
-  document.addEventListener('touchend', function (e) {
-    var now = Date.now();
-    if (now - lastTouch <= 300) { e.preventDefault(); }
-    lastTouch = now;
-  }, { passive: false });
-  document.addEventListener('dblclick', function (e) { e.preventDefault(); }, { passive: false });
+  var audioCtx = null, masterGain = null, analyser = null, frequencyData = null;
+  var voices = new Set(); // Inclui as notas que ainda estão em release.
+  var activePad = null, activeNote = null;
+  var actionVersion = 0; // Invalida notas pendentes ao parar/trocar durante resume().
+  var frequencies = {
+    'C': 130.81, 'C#': 138.59, 'D': 146.83, 'D#': 155.56,
+    'E': 164.81, 'F': 174.61, 'F#': 185.00, 'G': 196.00,
+    'G#': 207.65, 'A': 220.00, 'A#': 233.08, 'B': 246.94
+  };
+
+  async function ensureAudio() {
+    if (!audioCtx) {
+      var AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (!AudioContextClass) throw new Error('Web Audio API indisponível');
+      audioCtx = new AudioContextClass();
+      masterGain = audioCtx.createGain();
+      masterGain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 64;
+      analyser.smoothingTimeConstant = 0.75;
+      frequencyData = new Uint8Array(analyser.frequencyBinCount);
+      // Saída audível explícita. O analyser é uma derivação de medição:
+      // NÃO conectá-lo também ao destination, pois isso duplicaria o sinal.
+      masterGain.connect(audioCtx.destination);
+      masterGain.connect(analyser);
+      // Respeita inclusive volume/mudo selecionado antes da inicialização.
+      applyVolume();
+    }
+    if (audioCtx.state !== 'running') {
+      // Chamado dentro do gesto, antes do primeiro await (Chrome/Android/iOS).
+      await audioCtx.resume();
+    }
+    if (audioCtx.state !== 'running') throw new Error('Contexto de áudio não está ativo');
+  }
+
+  function reportAudioError(err) {
+    stopAll();
+    toneHint.textContent = 'Áudio indisponível. Toque novamente para tentar.';
+    console.error('Não foi possível iniciar o áudio:', err);
+  }
+
+  function unlockAudio() {
+    ensureAudio().catch(reportAudioError);
+  }
+  // Capture executa resume() antes dos controles, inclusive no primeiro toque.
+  document.addEventListener('pointerdown', unlockAudio, { capture: true });
+  document.addEventListener('click', unlockAudio, { capture: true });
   document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
+
+  class AmbientPad {
+    constructor(frequency) {
+      var now = audioCtx.currentTime;
+      this.startedAt = now;
+      this.releasing = false;
+      this.disposed = false;
+      this.filter = audioCtx.createBiquadFilter();
+      this.filter.type = 'lowpass';
+      this.filter.frequency.value = 800;
+      this.filter.Q.value = 2.2;
+      this.envelope = audioCtx.createGain();
+      this.filter.connect(this.envelope);
+      this.envelope.connect(masterGain);
+      // Ataque curto audível confirma o toque sem um beep alheio ao tom.
+      this.envelope.gain.setValueAtTime(0.001, now);
+      this.envelope.gain.linearRampToValueAtTime(0.06, now + 0.02);
+      this.envelope.gain.linearRampToValueAtTime(0.6, now + 1.2);
+      this.oscillators = [-7, 0, 7].map(function (cents) {
+        var osc = audioCtx.createOscillator();
+        osc.type = 'sawtooth';
+        osc.frequency.value = frequency;
+        osc.detune.value = cents;
+        return osc;
+      });
+      var sub = audioCtx.createOscillator();
+      sub.type = 'sine';
+      sub.frequency.value = frequency / 2;
+      this.oscillators.push(sub);
+      var ended = 0;
+      this.oscillators.forEach((osc) => {
+        osc.connect(this.filter);
+        osc.onended = () => {
+          if (++ended === this.oscillators.length) this.dispose();
+        };
+        osc.start(now);
+      });
+      voices.add(this);
+    }
+
+    release() {
+      if (this.releasing || this.disposed) return;
+      this.releasing = true;
+      var now = audioCtx.currentTime;
+      var gain = this.envelope.gain;
+      if (typeof gain.cancelAndHoldAtTime === 'function') {
+        gain.cancelAndHoldAtTime(now);
+      } else {
+        // Reconstitui o ataque em navegadores sem cancelAndHoldAtTime.
+        var elapsed = Math.max(0, now - this.startedAt);
+        var current = elapsed < 0.02
+          ? 0.001 + (0.06 - 0.001) * elapsed / 0.02
+          : 0.06 + (0.6 - 0.06) * Math.min(1, (elapsed - 0.02) / 1.18);
+        gain.cancelScheduledValues(now);
+        gain.setValueAtTime(current, now);
+      }
+      gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+      gain.setValueAtTime(0, now + 1.0);
+      this.oscillators.forEach(function (osc) { osc.stop(now + 1.0); });
+    }
+
+    stopImmediately() {
+      if (this.disposed) return;
+      var now = audioCtx.currentTime;
+      this.envelope.gain.cancelScheduledValues(now);
+      this.envelope.gain.setValueAtTime(0, now);
+      this.oscillators.forEach(function (osc) {
+        // stop(now) substitui o stop futuro agendado pelo release.
+        try { osc.stop(now); } catch (err) {
+          if (err.name !== 'InvalidStateError') console.error(err);
+        }
+      });
+      this.dispose();
+    }
+
+    dispose() {
+      if (this.disposed) return;
+      this.disposed = true;
+      this.oscillators.forEach(function (osc) {
+        osc.onended = null;
+        osc.disconnect();
+      });
+      this.filter.disconnect();
+      this.envelope.disconnect();
+      voices.delete(this);
+    }
+  }
 
   /* ---------- 2. Volume Master ---------- */
   var vol = document.getElementById('masterVol');
@@ -572,7 +695,9 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
     vol.style.setProperty('--fill', v + '%');
     volOut.textContent = v + '%';
     volHint.textContent = v === 0 ? 'Mudo' : (v > 85 ? 'Saída alta' : 'Saída principal');
-    // TODO Fase 2: masterGain.gain.value = (v / 100) * 0.9;
+    if (masterGain) {
+      masterGain.gain.setTargetAtTime(v / 100, audioCtx.currentTime, 0.015);
+    }
   }
   vol.addEventListener('input', applyVolume);
   applyVolume();
@@ -581,14 +706,40 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
   var tones = document.querySelectorAll('.tone');
   var toneHint = document.getElementById('toneHint');
 
-  tones.forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      tones.forEach(function (t) { t.classList.remove('active'); });
-      btn.classList.add('active');
-      toneHint.textContent = 'Tom: ' + btn.dataset.note;
-      // TODO Fase 2: iniciar/sustentar o pad tonal em btn.dataset.note
-      pulse();
+  function updateToneUI() {
+    tones.forEach(function (btn) {
+      var selected = btn.dataset.note === activeNote;
+      btn.classList.toggle('active', selected);
+      btn.setAttribute('aria-pressed', String(selected));
     });
+    toneHint.textContent = activeNote ? 'Tom: ' + activeNote : 'Toque para sustentar';
+  }
+  updateToneUI(); // Remove o destaque estático da Fase 1, sem tocar ao carregar.
+
+  async function toggleKeyPad(note) {
+    var version = ++actionVersion;
+    try {
+      await ensureAudio();
+      // STOP ALL ou um toque mais recente vence uma inicialização pendente.
+      if (version !== actionVersion) return;
+      var previous = activePad;
+      if (activeNote === note) {
+        activePad = null;
+        activeNote = null;
+      } else {
+        // Inicia a nova voz antes de liberar a anterior: não há lacuna sonora.
+        activePad = new AmbientPad(frequencies[note]);
+        activeNote = note;
+      }
+      if (previous) previous.release();
+      updateToneUI();
+    } catch (err) {
+      if (version === actionVersion) reportAudioError(err);
+    }
+  }
+
+  tones.forEach(function (btn) {
+    btn.addEventListener('click', function () { toggleKeyPad(btn.dataset.note); });
   });
 
   /* ---------- 4. Cenas de Culto ---------- */
@@ -599,7 +750,6 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
       chip.classList.add('active');
       chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
       // TODO Fase 2: carregar preset da cena chip.dataset.scene
-      pulse();
     });
   });
 
@@ -614,7 +764,6 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
       pad.classList.add('trigger');
       padHint.textContent = pad.querySelector('.name').textContent;
       // TODO Fase 2: disparar o sample pad.dataset.id
-      pulse();
     });
     pad.addEventListener('animationend', function () {
       pad.classList.remove('trigger');
@@ -622,13 +771,25 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
   });
 
   /* ---------- 6. STOP ALL ---------- */
-  var btnStop = document.getElementById('btnStopAll');
-  btnStop.addEventListener('click', function () {
+  var btnStop = document.getElementById('panicBtn');
+  function stopAll() {
+    ++actionVersion;
+    if (masterGain) {
+      masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
+      masterGain.gain.setValueAtTime(Number(vol.value) / 100, audioCtx.currentTime);
+    }
+    voices.forEach(function (voice) { voice.stopImmediately(); });
+    activePad = null;
+    activeNote = null;
+    updateToneUI();
     pads.forEach(function (p) { p.classList.remove('trigger'); });
+    chips.forEach(function (chip) { chip.classList.remove('active'); });
     padHint.textContent = 'Tudo silenciado';
-    pulse(0);
-    // TODO Fase 2: parar todas as voices e limpar o sustain do colchão
-  });
+    if (frequencyData) frequencyData.fill(0);
+    if (drawing) drawing.clearRect(0, 0, W, H);
+  }
+  btnStop.addEventListener('click', stopAll);
+  window.addEventListener('pagehide', stopAll);
 
   /* ---------- 7. WakeLock (placeholder) ---------- */
   var btnWake = document.getElementById('btnWake');
@@ -666,68 +827,44 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
   // TODO Fase 2: navigator.requestMIDIAccess().then(...)
   window.__worshipSetMidi = setMidi;
 
-  /* ---------- 9. Visualizador (placehold animado) ---------- */
+  /* ---------- 9. Visualizador real: analyser mede o master em paralelo à saída ---------- */
   var canvas = document.getElementById('viz');
-  var ctx = canvas.getContext('2d');
-  var bars = 64;
-  var energy = new Array(bars).fill(0);
-  var W = 0, H = 45, dpr = 1;
+  var drawing = canvas.getContext('2d');
+  var W = 0, H = 45;
+  var gradient;
 
   function resize() {
-    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    if (!drawing) return;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
     W = canvas.clientWidth || window.innerWidth;
+    H = canvas.clientHeight || 45;
     canvas.width = Math.floor(W * dpr);
     canvas.height = Math.floor(H * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    drawing.setTransform(dpr, 0, 0, dpr, 0, 0);
+    gradient = drawing.createLinearGradient(0, 0, 0, H);
+    gradient.addColorStop(0, '#a855f7');
+    gradient.addColorStop(1, '#06b6d4');
   }
   window.addEventListener('resize', resize);
   resize();
 
-  // Energia extra quando algo é tocado
-  var boost = 0;
-  function pulse(amount) { boost = Math.min(1, boost + (amount === undefined ? 0.55 : amount)); }
-  window.pulse = pulse;
-
   function draw() {
-    ctx.clearRect(0, 0, W, H);
-    boost *= 0.94;
-    var level = parseInt(vol.value, 10) / 100;
-
-    var bw = W / bars;
-    for (var i = 0; i < bars; i++) {
-      var target = (Math.sin(i * 0.35 + performance.now() / 420) * 0.5 + 0.5);
-      target = Math.pow(target, 2.2) * (0.22 + boost * 0.78) * level;
-      target += Math.random() * 0.05 * (0.3 + boost);
-      energy[i] += (target - energy[i]) * 0.22;
-
-      var h = Math.max(1.5, energy[i] * (H - 8));
-      var x = i * bw;
-      var y = (H - h) / 2;
-
-      var g = ctx.createLinearGradient(0, y, 0, y + h);
-      g.addColorStop(0, 'rgba(99,102,241,0.95)');
-      g.addColorStop(1, 'rgba(6,182,212,0.85)');
-      ctx.fillStyle = g;
-      ctx.globalAlpha = 0.35 + energy[i] * 0.65;
-      var r = Math.min(bw / 2, 2.5);
-      roundRect(x + bw * 0.18, y, Math.max(1, bw * 0.64), h, r);
-      ctx.fill();
+    if (!drawing) return;
+    drawing.clearRect(0, 0, W, H);
+    if (analyser && audioCtx.state === 'running' && voices.size > 0) {
+      analyser.getByteFrequencyData(frequencyData);
+      var bw = W / frequencyData.length;
+      drawing.fillStyle = gradient;
+      for (var i = 0; i < frequencyData.length; i++) {
+        var level = frequencyData[i] / 255;
+        var h = level * (H - 4);
+        drawing.globalAlpha = 0.35 + level * 0.65;
+        drawing.fillRect(i * bw + bw * 0.18, H - h, Math.max(1, bw * 0.64), h);
+      }
+      drawing.globalAlpha = 1;
     }
-    ctx.globalAlpha = 1;
     requestAnimationFrame(draw);
   }
-
-  function roundRect(x, y, w, h, r) {
-    ctx.beginPath();
-    if (ctx.roundRect) { ctx.roundRect(x, y, w, h, r); return; }
-    ctx.moveTo(x + r, y);
-    ctx.arcTo(x + w, y, x + w, y + h, r);
-    ctx.arcTo(x + w, y + h, x, y + h, r);
-    ctx.arcTo(x, y + h, x, y, r);
-    ctx.arcTo(x, y, x + w, y, r);
-    ctx.closePath();
-  }
-
   requestAnimationFrame(draw);
 })();
 </script>
