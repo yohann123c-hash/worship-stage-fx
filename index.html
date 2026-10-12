@@ -385,6 +385,10 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
 }
 .pad.trigger::before{ opacity:1; }
 .pad.trigger .name{ color:#fff; }
+.pad.loaded{ border-color:#10b981; border-left-color:#10b981; box-shadow:0 0 0 1px rgba(16,185,129,.35); }
+.pad .import-file{ position:absolute; left:5px; top:4px; z-index:3; width:25px; height:25px; display:grid; place-items:center; border-radius:7px; font-size:13px; cursor:pointer; opacity:.7; background:rgba(10,11,16,.72); border:1px solid rgba(255,255,255,.12); }
+.pad .import-file:hover{ opacity:1; background:rgba(16,185,129,.18); border-color:#10b981; }
+.pad .import-file input{ display:none; }
 @keyframes padHit{
   0%{ transform:scale(.9); filter:brightness(1.9); }
   55%{ transform:scale(1.05); filter:brightness(1.35); }
@@ -515,33 +519,33 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
     <div class="pads" id="padGrid">
 
       <!-- DRUMS (rosa) -->
-      <button class="pad" style="--cat:#ec4899" data-id="kick808"><span class="tag">Drum</span><span class="emoji">🥁</span><span class="name">808 Kick</span></button>
-      <button class="pad" style="--cat:#ec4899" data-id="snare"><span class="tag">Drum</span><span class="emoji">🎩</span><span class="name">Worship Snare</span></button>
-      <button class="pad" style="--cat:#ec4899" data-id="clap"><span class="tag">Drum</span><span class="emoji">👏</span><span class="name">Clap</span></button>
-      <button class="pad" style="--cat:#ec4899" data-id="snap"><span class="tag">Drum</span><span class="emoji">🫰</span><span class="name">Finger Snap</span></button>
+      <button class="pad" style="--cat:#ec4899" data-id="kick808"><span class="tag">Drum</span><span class="emoji">🥁</span><span class="name">808 Kick</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="kick808"></label></button>
+      <button class="pad" style="--cat:#ec4899" data-id="snare"><span class="tag">Drum</span><span class="emoji">🎩</span><span class="name">Worship Snare</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="snare"></label></button>
+      <button class="pad" style="--cat:#ec4899" data-id="clap"><span class="tag">Drum</span><span class="emoji">👏</span><span class="name">Clap</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="clap"></label></button>
+      <button class="pad" style="--cat:#ec4899" data-id="snap"><span class="tag">Drum</span><span class="emoji">🫰</span><span class="name">Finger Snap</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="snap"></label></button>
 
       <!-- FX (ciano) -->
-      <button class="pad" style="--cat:#06b6d4" data-id="riser"><span class="tag">FX</span><span class="emoji">📈</span><span class="name">Swell Riser</span></button>
-      <button class="pad" style="--cat:#06b6d4" data-id="impact"><span class="tag">FX</span><span class="emoji">💥</span><span class="name">Sub Impact</span></button>
-      <button class="pad" style="--cat:#06b6d4" data-id="noise"><span class="tag">FX</span><span class="emoji">🌫️</span><span class="name">White Noise</span></button>
-      <button class="pad" style="--cat:#06b6d4" data-id="shaker"><span class="tag">FX</span><span class="emoji">🪇</span><span class="name">Shaker</span></button>
+      <button class="pad" style="--cat:#06b6d4" data-id="riser"><span class="tag">FX</span><span class="emoji">📈</span><span class="name">Swell Riser</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="riser"></label></button>
+      <button class="pad" style="--cat:#06b6d4" data-id="impact"><span class="tag">FX</span><span class="emoji">💥</span><span class="name">Sub Impact</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="impact"></label></button>
+      <button class="pad" style="--cat:#06b6d4" data-id="noise"><span class="tag">FX</span><span class="emoji">🌫️</span><span class="name">White Noise</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="noise"></label></button>
+      <button class="pad" style="--cat:#06b6d4" data-id="shaker"><span class="tag">FX</span><span class="emoji">🪇</span><span class="name">Shaker</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="shaker"></label></button>
 
       <!-- AMBIENT (âmbar) -->
-      <button class="pad" style="--cat:#f59e0b" data-id="strings"><span class="tag">Amb</span><span class="emoji">🎻</span><span class="name">Warm Strings</span></button>
-      <button class="pad" style="--cat:#f59e0b" data-id="choir"><span class="tag">Amb</span><span class="emoji">🕊️</span><span class="name">Coro Celestial</span></button>
-      <button class="pad" style="--cat:#f59e0b" data-id="pandeiro"><span class="tag">Amb</span><span class="emoji">🪘</span><span class="name">Pandeiro</span></button>
-      <button class="pad" style="--cat:#f59e0b" data-id="chimes"><span class="tag">Amb</span><span class="emoji">🎐</span><span class="name">Chimes</span></button>
+      <button class="pad" style="--cat:#f59e0b" data-id="strings"><span class="tag">Amb</span><span class="emoji">🎻</span><span class="name">Warm Strings</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="strings"></label></button>
+      <button class="pad" style="--cat:#f59e0b" data-id="choir"><span class="tag">Amb</span><span class="emoji">🕊️</span><span class="name">Coro Celestial</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="choir"></label></button>
+      <button class="pad" style="--cat:#f59e0b" data-id="pandeiro"><span class="tag">Amb</span><span class="emoji">🪘</span><span class="name">Pandeiro</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="pandeiro"></label></button>
+      <button class="pad" style="--cat:#f59e0b" data-id="chimes"><span class="tag">Amb</span><span class="emoji">🎐</span><span class="name">Chimes</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="chimes"></label></button>
 
       <!-- VOICE / EXTRA (roxo) -->
-      <button class="pad" style="--cat:#a855f7" data-id="grito"><span class="tag">Vox</span><span class="emoji">📣</span><span class="name">Grito Guerra</span></button>
-      <button class="pad" style="--cat:#a855f7" data-id="aplausos"><span class="tag">Vox</span><span class="emoji">🙌</span><span class="name">Aplausos</span></button>
-      <button class="pad" style="--cat:#a855f7" data-id="subdrop"><span class="tag">Vox</span><span class="emoji">🔉</span><span class="name">Sub Drop</span></button>
-      <button class="pad" style="--cat:#a855f7" data-id="reverse"><span class="tag">Vox</span><span class="emoji">⏪</span><span class="name">Reverse FX</span></button>
+      <button class="pad" style="--cat:#a855f7" data-id="grito"><span class="tag">Vox</span><span class="emoji">📣</span><span class="name">Grito Guerra</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="grito"></label></button>
+      <button class="pad" style="--cat:#a855f7" data-id="aplausos"><span class="tag">Vox</span><span class="emoji">🙌</span><span class="name">Aplausos</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="aplausos"></label></button>
+      <button class="pad" style="--cat:#a855f7" data-id="subdrop"><span class="tag">Vox</span><span class="emoji">🔉</span><span class="name">Sub Drop</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="subdrop"></label></button>
+      <button class="pad" style="--cat:#a855f7" data-id="reverse"><span class="tag">Vox</span><span class="emoji">⏪</span><span class="name">Reverse FX</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="reverse"></label></button>
 
     </div>
   </section>
 
-  <div class="footer">Worship Stage FX Pro · Fase 1 · Estrutura &amp; Estilo</div>
+  <div class="footer">Worship Stage FX Pro · Warm Pad &amp; 16 FX</div>
 </main>
 
 <script>
@@ -606,18 +610,18 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
       this.disposed = false;
       this.filter = audioCtx.createBiquadFilter();
       this.filter.type = 'lowpass';
-      this.filter.frequency.value = 800;
-      this.filter.Q.value = 2.2;
+      this.filter.frequency.value = 350;
+      this.filter.Q.value = 0.7;
       this.envelope = audioCtx.createGain();
       this.filter.connect(this.envelope);
       this.envelope.connect(masterGain);
       // Ataque curto audível confirma o toque sem um beep alheio ao tom.
       this.envelope.gain.setValueAtTime(0.001, now);
       this.envelope.gain.linearRampToValueAtTime(0.06, now + 0.02);
-      this.envelope.gain.linearRampToValueAtTime(0.6, now + 1.2);
-      this.oscillators = [-7, 0, 7].map(function (cents) {
+      this.envelope.gain.linearRampToValueAtTime(0.6, now + 1.5);
+      this.oscillators = [-5, 5].map(function (cents) {
         var osc = audioCtx.createOscillator();
-        osc.type = 'sawtooth';
+        osc.type = 'triangle';
         osc.frequency.value = frequency;
         osc.detune.value = cents;
         return osc;
@@ -649,13 +653,13 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
         var elapsed = Math.max(0, now - this.startedAt);
         var current = elapsed < 0.02
           ? 0.001 + (0.06 - 0.001) * elapsed / 0.02
-          : 0.06 + (0.6 - 0.06) * Math.min(1, (elapsed - 0.02) / 1.18);
+          : 0.06 + (0.6 - 0.06) * Math.min(1, (elapsed - 0.02) / 1.48);
         gain.cancelScheduledValues(now);
         gain.setValueAtTime(current, now);
       }
-      gain.exponentialRampToValueAtTime(0.001, now + 1.0);
-      gain.setValueAtTime(0, now + 1.0);
-      this.oscillators.forEach(function (osc) { osc.stop(now + 1.0); });
+      gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+      gain.setValueAtTime(0, now + 1.5);
+      this.oscillators.forEach(function (osc) { osc.stop(now + 1.5); });
     }
 
     stopImmediately() {
@@ -757,17 +761,94 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
   var pads = document.querySelectorAll('.pad');
   var padHint = document.getElementById('padHint');
 
+  var customSamples = new Map();
+
+  function noiseBuffer(duration) {
+    var buffer = audioCtx.createBuffer(1, Math.ceil(audioCtx.sampleRate * duration), audioCtx.sampleRate);
+    var data = buffer.getChannelData(0);
+    for (var i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    return buffer;
+  }
+
+  function transient(duration) {
+    var nodes = [], stopped = false;
+    var voice = {
+      add: function (node) { nodes.push(node); return node; },
+      stopImmediately: function () {
+        if (stopped) return; stopped = true;
+        nodes.forEach(function (node) { try { if (node.stop) node.stop(); } catch (_) {} try { node.disconnect(); } catch (_) {} });
+        voices.delete(voice);
+      }
+    };
+    voices.add(voice);
+    setTimeout(voice.stopImmediately, (duration + .15) * 1000);
+    return voice;
+  }
+
+  function osc(v, type, from, to, duration, gain, delay) {
+    var t = audioCtx.currentTime + (delay || 0), o = v.add(audioCtx.createOscillator()), g = v.add(audioCtx.createGain());
+    o.type = type; o.frequency.setValueAtTime(from, t);
+    if (to) o.frequency.exponentialRampToValueAtTime(to, t + duration);
+    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(gain, t + .004); g.gain.exponentialRampToValueAtTime(.0001, t + duration);
+    o.connect(g); g.connect(masterGain); o.start(t); o.stop(t + duration); return o;
+  }
+
+  function noise(v, duration, gain, filterType, frequency, endFrequency, delay) {
+    var t = audioCtx.currentTime + (delay || 0), src = v.add(audioCtx.createBufferSource()), f = v.add(audioCtx.createBiquadFilter()), g = v.add(audioCtx.createGain());
+    src.buffer = noiseBuffer(duration); f.type = filterType || 'highpass'; f.frequency.setValueAtTime(frequency || 1000, t);
+    if (endFrequency) f.frequency.exponentialRampToValueAtTime(endFrequency, t + duration);
+    f.Q.value = filterType === 'bandpass' ? 1.2 : .7;
+    g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(gain, t + .006); g.gain.exponentialRampToValueAtTime(.0001, t + duration);
+    src.connect(f); f.connect(g); g.connect(masterGain); src.start(t); src.stop(t + duration);
+  }
+
+  function playSynth(id) {
+    var duration = 2, v;
+    if (id === 'kick808') { duration=.32; v=transient(duration); osc(v,'sine',130,30,.3,1.0); }
+    else if (id === 'snare') { duration=.26; v=transient(duration); osc(v,'triangle',160,95,.2,.38); noise(v,.25,.55,'highpass',900); }
+    else if (id === 'clap') { duration=.25; v=transient(duration); [0,.045,.09].forEach(function(d){ noise(v,.07,.42,'bandpass',1200,null,d); }); }
+    else if (id === 'snap') { duration=.08; v=transient(duration); osc(v,'sine',1700,1250,.06,.35); noise(v,.045,.22,'highpass',3500); }
+    else if (id === 'riser') { duration=1.65; v=transient(duration); osc(v,'sine',80,700,1.6,.28); noise(v,1.6,.3,'bandpass',500,5000); }
+    else if (id === 'impact') { duration=1.25; v=transient(duration); osc(v,'sine',80,20,1.2,.95); noise(v,.18,.22,'lowpass',500); }
+    else if (id === 'noise') { duration=.85; v=transient(duration); noise(v,.8,.5,'bandpass',300,1800); }
+    else if (id === 'shaker' || id === 'pandeiro') { duration=.35; v=transient(duration); [0,.08,.16,.24].forEach(function(d,i){ noise(v,.035,i? .25:.4,'highpass',4500,null,d); }); }
+    else if (id === 'chimes') { duration=1.85; v=transient(duration); [1046,1318,1568,2093].forEach(function(f,i){ osc(v,'sine',f,null,1.8,.16,i*.018); }); }
+    else if (id === 'strings') { duration=2.1; v=transient(duration); [220,277.18,329.63].forEach(function(f){ osc(v,'triangle',f,f*1.006,2,.14); }); }
+    else if (id === 'choir') { duration=2.2; v=transient(duration); [196,246.94,293.66].forEach(function(f){ osc(v,'sine',f,f*1.015,2.1,.16); }); }
+    else if (id === 'grito') { duration=1.15; v=transient(duration); osc(v,'sawtooth',180,340,1,.18); noise(v,1,.2,'bandpass',900,1800); }
+    else if (id === 'aplausos') { duration=1.5; v=transient(duration); for(var i=0;i<12;i++) noise(v,.09,.16,'bandpass',1000+Math.random()*1800,null,i*.1); }
+    else if (id === 'subdrop') { duration=1.55; v=transient(duration); osc(v,'sine',110,22,1.5,.85); }
+    else if (id === 'reverse') { duration=1.25; v=transient(duration); noise(v,1.2,.4,'bandpass',250,5000); osc(v,'triangle',120,800,1.2,.16); }
+  }
+
+  function playPad(id) {
+    var buffer = customSamples.get(id);
+    if (!buffer) return playSynth(id);
+    var src = audioCtx.createBufferSource(), v = transient(buffer.duration);
+    v.add(src); src.buffer = buffer; src.connect(masterGain); src.start();
+  }
+
   pads.forEach(function (pad) {
+    var importer = pad.querySelector('.import-file');
+    var input = importer.querySelector('input');
+    importer.addEventListener('pointerdown', function (event) { event.stopPropagation(); });
+    importer.addEventListener('click', function (event) { event.stopPropagation(); });
+    input.addEventListener('change', async function (event) {
+      var file = event.target.files[0]; if (!file) return;
+      try {
+        await ensureAudio();
+        var buffer = await audioCtx.decodeAudioData(await file.arrayBuffer());
+        customSamples.set(pad.dataset.id, buffer); pad.classList.add('loaded');
+        padHint.textContent = file.name + ' carregado';
+      } catch (err) { padHint.textContent = 'Arquivo de áudio inválido'; console.error(err); }
+      input.value = '';
+    });
     pad.addEventListener('pointerdown', function () {
-      pad.classList.remove('trigger');
-      void pad.offsetWidth;           // reinicia a animação
-      pad.classList.add('trigger');
+      ensureAudio().then(function () { playPad(pad.dataset.id); }).catch(reportAudioError);
+      pad.classList.remove('trigger'); void pad.offsetWidth; pad.classList.add('trigger');
       padHint.textContent = pad.querySelector('.name').textContent;
-      // TODO Fase 2: disparar o sample pad.dataset.id
     });
-    pad.addEventListener('animationend', function () {
-      pad.classList.remove('trigger');
-    });
+    pad.addEventListener('animationend', function () { pad.classList.remove('trigger'); });
   });
 
   /* ---------- 6. STOP ALL ---------- */
