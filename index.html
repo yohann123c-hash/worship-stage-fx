@@ -3,13 +3,25 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#0a0b10">
+
+<!-- ===================== PWA ===================== -->
+<meta name="theme-color" content="#0d0e15">
+<meta name="color-scheme" content="dark">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Worship Stage FX Pro</title>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Worship FX">
+<meta name="application-name" content="Worship Stage FX">
+<meta name="description" content="Hollow Space Pad com Glide, 16 pads de Louvor, samples próprios e funcionamento 100% offline.">
+<link rel="manifest" id="appManifest" href="manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon-180.png">
+
+<title>Worship Stage FX · Hollow Pad + 16 FX</title>
 <style>
 /* ============================================================
-   WORSHIP STAGE FX PRO — FASE 1 (Estrutura + Estilo)
-   Tema Dark Worship
+   WORSHIP STAGE FX — FASE 3 (Hollow Space Pad + 16 FX + PWA)
+   Mantém a interface e o estilo da Fase 1 (tema Dark Worship)
    ============================================================ */
 
 :root{
@@ -105,6 +117,8 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
   color:var(--text-faint); font-weight:600;
 }
 
+.header-right{ display:flex; align-items:center; gap:7px; }
+
 /* Status badge */
 .badge{
   display:inline-flex; align-items:center; gap:6px;
@@ -171,7 +185,7 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
   content:""; width:3px; height:13px; border-radius:2px;
   background:linear-gradient(180deg,var(--indigo),var(--cyan));
 }
-.section-hint{ font-size:10px; color:var(--text-faint); letter-spacing:.4px; }
+.section-hint{ font-size:10px; color:var(--text-faint); letter-spacing:.4px; text-align:right; }
 
 .card{
   background:var(--card);
@@ -253,7 +267,7 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
 }
 
 /* ============================================================
-   COLCHÃO DE ADORAÇÃO (TONE PADS) — 6 x 2
+   COLCHÃO DE ADORAÇÃO (HOLLOW SPACE PAD) — 6 x 2
    ============================================================ */
 .tone-grid{
   display:grid;
@@ -292,7 +306,24 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
   animation:tonePop .22s ease;
 }
 .tone.active .sub{ color:rgba(255,255,255,.75); }
+/* Nota de onde o GLIDE está partindo (deslizando até a nota nova) */
+.tone.gliding{
+  color:#dffbff;
+  border-color:var(--cyan);
+  background:linear-gradient(180deg, rgba(6,182,212,.22), rgba(6,182,212,.06));
+  box-shadow:0 0 0 1px rgba(6,182,212,.45), 0 0 16px rgba(6,182,212,.25);
+}
+.tone.gliding .sub{ color:rgba(223,251,255,.8); }
 @keyframes tonePop{ 0%{transform:scale(.9)} 60%{transform:scale(1.06)} 100%{transform:scale(1)} }
+
+.pad-note{
+  display:flex; align-items:center; gap:8px;
+  margin-top:10px; padding-top:10px;
+  border-top:1px dashed var(--border);
+  font-size:9.5px; letter-spacing:.8px; text-transform:uppercase;
+  color:var(--text-faint);
+}
+.pad-note b{ color:var(--text-dim); font-weight:700; }
 
 /* ============================================================
    CENAS DE CULTO — chips roláveis
@@ -348,7 +379,7 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
   aspect-ratio:1/1;
   display:flex; flex-direction:column; align-items:center; justify-content:center;
   gap:5px;
-  padding:6px 4px;
+  padding:14px 4px 6px;
   border-radius:var(--radius);
   border:1px solid var(--border);
   border-left:3px solid var(--cat,var(--indigo));
@@ -374,9 +405,10 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
   padding:0 2px;
 }
 .pad .tag{
-  position:absolute; top:5px; right:6px;
+  position:absolute; top:6px; left:7px;
   font-size:6.5px; font-weight:800; letter-spacing:.6px; text-transform:uppercase;
   color:var(--cat); opacity:.6;
+  pointer-events:none;
 }
 .pad.trigger{
   animation:padHit .28s ease;
@@ -385,15 +417,159 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
 }
 .pad.trigger::before{ opacity:1; }
 .pad.trigger .name{ color:#fff; }
-.pad.loaded{ border-color:#10b981; border-left-color:#10b981; box-shadow:0 0 0 1px rgba(16,185,129,.35); }
-.pad .import-file{ position:absolute; left:5px; top:4px; z-index:3; width:25px; height:25px; display:grid; place-items:center; border-radius:7px; font-size:13px; cursor:pointer; opacity:.7; background:rgba(10,11,16,.72); border:1px solid rgba(255,255,255,.12); }
-.pad .import-file:hover{ opacity:1; background:rgba(16,185,129,.18); border-color:#10b981; }
+
+/* ---- Sample próprio carregado (borda verde) ---- */
+.pad.loaded{
+  border-color:#10b981; border-left-color:#10b981;
+  box-shadow:0 0 0 1px rgba(16,185,129,.35), 0 0 18px rgba(16,185,129,.14);
+  background:linear-gradient(180deg, rgba(16,185,129,.10), #0f111a 60%);
+}
+.pad.loaded .tag{ color:#10b981; opacity:.9; }
+
+/* Botão discreto 📁 no canto superior direito */
+.pad .import-file{
+  position:absolute; right:5px; top:4px; z-index:3;
+  width:26px; height:26px;
+  display:grid; place-items:center;
+  border-radius:7px;
+  font-size:12px; line-height:1;
+  cursor:pointer;
+  opacity:.45;
+  background:rgba(10,11,16,.72);
+  border:1px solid rgba(255,255,255,.10);
+  transition:opacity .18s ease, background .18s ease, border-color .18s ease, transform .12s ease;
+}
 .pad .import-file input{ display:none; }
+.pad .import-file:hover{ opacity:1; background:rgba(99,102,241,.20); border-color:rgba(99,102,241,.6); }
+.pad .import-file:active{ transform:scale(.9); }
+.pad.loaded .import-file{ opacity:.95; color:#10b981; border-color:rgba(16,185,129,.55); background:rgba(16,185,129,.12); }
+
 @keyframes padHit{
   0%{ transform:scale(.9); filter:brightness(1.9); }
   55%{ transform:scale(1.05); filter:brightness(1.35); }
   100%{ transform:scale(1); filter:brightness(1); }
 }
+
+/* ============================================================
+   APP / OFFLINE (PWA)
+   ============================================================ */
+.app-card{ display:flex; flex-direction:column; gap:10px; }
+.app-actions{ display:grid; grid-template-columns:1.35fr 1fr; gap:10px; }
+
+.btn-install{
+  color:#eef0ff;
+  background:linear-gradient(180deg, rgba(99,102,241,.30), rgba(99,102,241,.12));
+  border-color:rgba(99,102,241,.65);
+  box-shadow:0 0 20px rgba(99,102,241,.22);
+}
+.btn-install.ready{
+  animation:installGlow 2.4s ease-in-out infinite;
+}
+.btn-install:disabled{ opacity:.55; box-shadow:none; }
+.btn-install.done{
+  color:#eafff8;
+  background:linear-gradient(180deg, rgba(16,185,129,.22), rgba(16,185,129,.08));
+  border-color:rgba(16,185,129,.55);
+  box-shadow:0 0 18px rgba(16,185,129,.2);
+  animation:none;
+}
+@keyframes installGlow{
+  0%,100%{ box-shadow:0 0 18px rgba(99,102,241,.22); }
+  50%{ box-shadow:0 0 28px rgba(99,102,241,.5); }
+}
+
+.btn-cache{
+  color:#dffbff;
+  background:linear-gradient(180deg, rgba(6,182,212,.16), rgba(6,182,212,.06));
+  border-color:rgba(6,182,212,.45);
+}
+
+.pwa-status{
+  display:flex; align-items:center; gap:8px;
+  padding:9px 11px;
+  border-radius:var(--radius-sm);
+  border:1px dashed var(--border);
+  background:rgba(255,255,255,.02);
+  font-size:10px; letter-spacing:.4px;
+  color:var(--text-faint);
+  line-height:1.45;
+}
+.pwa-status .dot{
+  flex:0 0 auto;
+  width:7px; height:7px; border-radius:50%;
+  background:var(--text-faint);
+  box-shadow:0 0 8px rgba(255,255,255,.12);
+}
+.pwa-status.ok{ color:#c9f7e9; border-color:rgba(16,185,129,.4); border-style:solid; background:rgba(16,185,129,.06); }
+.pwa-status.ok .dot{ background:var(--green); box-shadow:0 0 8px var(--green); }
+.pwa-status.warn{ color:#ffe9c2; border-color:rgba(245,158,11,.4); }
+.pwa-status.warn .dot{ background:var(--amber); box-shadow:0 0 8px var(--amber); }
+
+/* Faixa flutuante de instalação */
+.install-banner{
+  position:fixed; left:12px; right:12px;
+  bottom:calc(14px + env(safe-area-inset-bottom));
+  z-index:90;
+  display:none; align-items:center; gap:10px;
+  padding:11px 12px;
+  border-radius:var(--radius);
+  background:rgba(19,21,31,.96);
+  border:1px solid rgba(99,102,241,.55);
+  box-shadow:0 14px 34px rgba(0,0,0,.6), 0 0 22px rgba(99,102,241,.25);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  transform:translateY(140%);
+  transition:transform .35s cubic-bezier(.2,.8,.25,1);
+}
+.install-banner.show{ display:flex; transform:translateY(0); }
+.install-banner .ib-text{ flex:1; min-width:0; }
+.install-banner .ib-text strong{ display:block; font-size:11.5px; letter-spacing:.4px; }
+.install-banner .ib-text span{ font-size:9.5px; color:var(--text-faint); letter-spacing:.4px; }
+.install-banner .ib-go{
+  padding:10px 13px; border-radius:9px;
+  font-size:11px; font-weight:800; letter-spacing:.6px;
+  color:#fff;
+  background:linear-gradient(180deg, var(--indigo), #4f46e5);
+  box-shadow:0 0 16px rgba(99,102,241,.45);
+}
+.install-banner .ib-x{
+  width:28px; height:28px; border-radius:8px;
+  display:grid; place-items:center;
+  font-size:13px; color:var(--text-dim);
+  border:1px solid var(--border);
+  background:var(--card-2);
+}
+
+/* ============================================================
+   TOAST
+   ============================================================ */
+.toast-wrap{
+  position:fixed; left:0; right:0;
+  bottom:calc(18px + env(safe-area-inset-bottom));
+  z-index:95;
+  display:flex; flex-direction:column; align-items:center; gap:8px;
+  pointer-events:none;
+  padding:0 14px;
+  transition:bottom .3s ease;
+}
+/* quando a faixa de instalação está aberta, os avisos sobem */
+body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
+.toast{
+  max-width:460px;
+  padding:10px 14px;
+  border-radius:999px;
+  font-size:11px; font-weight:600; letter-spacing:.3px;
+  color:var(--text);
+  background:rgba(19,21,31,.96);
+  border:1px solid var(--border);
+  box-shadow:0 10px 26px rgba(0,0,0,.55);
+  animation:toastIn .22s ease;
+}
+.toast.green{ border-color:rgba(16,185,129,.6); color:#d7fdef; }
+.toast.warn{ border-color:rgba(245,158,11,.6); color:#ffeac4; }
+.toast.out{ animation:toastOut .25s ease forwards; }
+@keyframes toastIn{ from{ opacity:0; transform:translateY(10px) scale(.97); } to{ opacity:1; transform:none; } }
+@keyframes toastOut{ to{ opacity:0; transform:translateY(8px); } }
 
 /* ============================================================
    RODAPÉ
@@ -403,6 +579,7 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
   font-size:9.5px; letter-spacing:1px; text-transform:uppercase;
   color:var(--text-faint);
   padding-top:6px;
+  line-height:1.8;
 }
 
 /* ============================================================
@@ -413,6 +590,8 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
   .pad .emoji{ font-size:19px; }
   .pad .name{ font-size:7.5px; }
   .btn{ font-size:11px; letter-spacing:.5px; padding:13px 6px; }
+  .badge{ font-size:9.5px; padding:6px 9px; }
+  .app-actions{ grid-template-columns:1fr; }
 }
 @media (min-width:700px){
   .main{ padding:20px 18px; }
@@ -431,11 +610,13 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
 <header class="header">
   <div class="brand">
     <h1>🎹 WORSHIP STAGE FX</h1>
-    <span>Stage Console · Fase 1</span>
+    <span id="brandSub">Hollow Space Pad · 16 FX · Offline</span>
   </div>
-  <div class="badge" id="midiBadge">
-    <span class="dot"></span>
-    <span id="midiText">MIDI: Desconectado</span>
+  <div class="header-right">
+    <div class="badge" id="midiBadge">
+      <span class="dot"></span>
+      <span id="midiText">MIDI: Desconectado</span>
+    </div>
   </div>
 </header>
 
@@ -469,7 +650,7 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
     </div>
   </section>
 
-  <!-- ==================== COLCHÃO DE ADORAÇÃO ==================== -->
+  <!-- ============ COLCHÃO DE ADORAÇÃO — HOLLOW SPACE PAD ========== -->
   <section class="section">
     <div class="section-head">
       <div class="section-title">Colchão de Adoração</div>
@@ -479,7 +660,7 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
     <div class="card">
       <div class="tone-grid" id="toneGrid">
         <button class="tone" data-note="C">C<span class="sub">DÓ</span></button>
-        <button class="tone active" data-note="C#">C#<span class="sub">DÓ#</span></button>
+        <button class="tone" data-note="C#">C#<span class="sub">DÓ#</span></button>
         <button class="tone" data-note="D">D<span class="sub">RÉ</span></button>
         <button class="tone" data-note="D#">D#<span class="sub">RÉ#</span></button>
         <button class="tone" data-note="E">E<span class="sub">MI</span></button>
@@ -490,6 +671,11 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
         <button class="tone" data-note="A">A<span class="sub">LÁ</span></button>
         <button class="tone" data-note="A#">A#<span class="sub">LÁ#</span></button>
         <button class="tone" data-note="B">B<span class="sub">SI</span></button>
+      </div>
+
+      <div class="pad-note">
+        <span>🌀 Hollow Pad · 2× Sine + Triangle</span>
+        <span style="margin-left:auto"><b>GLIDE 1.5s</b></span>
       </div>
     </div>
   </section>
@@ -509,233 +695,530 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
     </div>
   </section>
 
-  <!-- ====================== PADS DE DISPARO ====================== -->
+  <!-- ============== BIBLIOTECA: 16 WORSHIP FX / DRUMS ============= -->
   <section class="section">
     <div class="section-head">
-      <div class="section-title">Pads de Disparo</div>
+      <div class="section-title">16 Worship FX · Drums · Motion Pads</div>
       <div class="section-hint" id="padHint">16 pads</div>
     </div>
 
     <div class="pads" id="padGrid">
 
-      <!-- DRUMS (rosa) -->
-      <button class="pad" style="--cat:#ec4899" data-id="kick808"><span class="tag">Drum</span><span class="emoji">🥁</span><span class="name">808 Kick</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="kick808"></label></button>
-      <button class="pad" style="--cat:#ec4899" data-id="snare"><span class="tag">Drum</span><span class="emoji">🎩</span><span class="name">Worship Snare</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="snare"></label></button>
-      <button class="pad" style="--cat:#ec4899" data-id="clap"><span class="tag">Drum</span><span class="emoji">👏</span><span class="name">Clap</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="clap"></label></button>
-      <button class="pad" style="--cat:#ec4899" data-id="snap"><span class="tag">Drum</span><span class="emoji">🫰</span><span class="name">Finger Snap</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="snap"></label></button>
+      <!-- ---------- DRUMS (rosa) ---------- -->
+      <button class="pad" style="--cat:#ec4899" data-id="subdrop808">
+        <span class="tag">Drum</span><span class="emoji">🌑</span><span class="name">Sub Drop 808</span>
+        <label class="import-file" title="Importar áudio para este pad (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="subdrop808" aria-label="Importar áudio para Sub Drop 808"></label>
+      </button>
 
-      <!-- FX (ciano) -->
-      <button class="pad" style="--cat:#06b6d4" data-id="riser"><span class="tag">FX</span><span class="emoji">📈</span><span class="name">Swell Riser</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="riser"></label></button>
-      <button class="pad" style="--cat:#06b6d4" data-id="impact"><span class="tag">FX</span><span class="emoji">💥</span><span class="name">Sub Impact</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="impact"></label></button>
-      <button class="pad" style="--cat:#06b6d4" data-id="noise"><span class="tag">FX</span><span class="emoji">🌫️</span><span class="name">White Noise</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="noise"></label></button>
-      <button class="pad" style="--cat:#06b6d4" data-id="shaker"><span class="tag">FX</span><span class="emoji">🪇</span><span class="name">Shaker</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="shaker"></label></button>
+      <button class="pad" style="--cat:#ec4899" data-id="worshipsnare">
+        <span class="tag">Drum</span><span class="emoji">🥁</span><span class="name">Worship Snare + Reverb</span>
+        <label class="import-file" title="Importar áudio para este pad (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="worshipsnare" aria-label="Importar áudio para Worship Snare"></label>
+      </button>
 
-      <!-- AMBIENT (âmbar) -->
-      <button class="pad" style="--cat:#f59e0b" data-id="strings"><span class="tag">Amb</span><span class="emoji">🎻</span><span class="name">Warm Strings</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="strings"></label></button>
-      <button class="pad" style="--cat:#f59e0b" data-id="choir"><span class="tag">Amb</span><span class="emoji">🕊️</span><span class="name">Coro Celestial</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="choir"></label></button>
-      <button class="pad" style="--cat:#f59e0b" data-id="pandeiro"><span class="tag">Amb</span><span class="emoji">🪘</span><span class="name">Pandeiro</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="pandeiro"></label></button>
-      <button class="pad" style="--cat:#f59e0b" data-id="chimes"><span class="tag">Amb</span><span class="emoji">🎐</span><span class="name">Chimes</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="chimes"></label></button>
+      <button class="pad" style="--cat:#ec4899" data-id="clapcathedral">
+        <span class="tag">Drum</span><span class="emoji">👏</span><span class="name">Clap Cathedral</span>
+        <label class="import-file" title="Importar áudio para este pad (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="clapcathedral" aria-label="Importar áudio para Clap Cathedral"></label>
+      </button>
 
-      <!-- VOICE / EXTRA (roxo) -->
-      <button class="pad" style="--cat:#a855f7" data-id="grito"><span class="tag">Vox</span><span class="emoji">📣</span><span class="name">Grito Guerra</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="grito"></label></button>
-      <button class="pad" style="--cat:#a855f7" data-id="aplausos"><span class="tag">Vox</span><span class="emoji">🙌</span><span class="name">Aplausos</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="aplausos"></label></button>
-      <button class="pad" style="--cat:#a855f7" data-id="subdrop"><span class="tag">Vox</span><span class="emoji">🔉</span><span class="name">Sub Drop</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="subdrop"></label></button>
-      <button class="pad" style="--cat:#a855f7" data-id="reverse"><span class="tag">Vox</span><span class="emoji">⏪</span><span class="name">Reverse FX</span><label class="import-file" title="Importar áudio para este pad" aria-label="Importar áudio"><span>📁</span><input type="file" accept="audio/*" data-for="reverse"></label></button>
+      <button class="pad" style="--cat:#ec4899" data-id="snapreverb">
+        <span class="tag">Drum</span><span class="emoji">🫰</span><span class="name">Snap Reverb</span>
+        <label class="import-file" title="Importar áudio para este pad (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="snapreverb" aria-label="Importar áudio para Snap Reverb"></label>
+      </button>
+
+      <!-- ---------- FX / TRANSITIONS (ciano) ---------- -->
+      <button class="pad" style="--cat:#06b6d4" data-id="swellriser">
+        <span class="tag">FX</span><span class="emoji">📈</span><span class="name">Swell Riser</span>
+        <label class="import-file" title="Importar áudio para este pad (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="swellriser" aria-label="Importar áudio para Swell Riser"></label>
+      </button>
+
+      <button class="pad" style="--cat:#06b6d4" data-id="reversecrash">
+        <span class="tag">FX</span><span class="emoji">⏪</span><span class="name">Reverse Crash</span>
+        <label class="import-file" title="Importar áudio para este pad (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="reversecrash" aria-label="Importar áudio para Reverse Crash"></label>
+      </button>
+
+      <button class="pad" style="--cat:#06b6d4" data-id="whitenoisesweep">
+        <span class="tag">FX</span><span class="emoji">🌫️</span><span class="name">White Noise Sweep</span>
+        <label class="import-file" title="Importar áudio para este pad (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="whitenoisesweep" aria-label="Importar áudio para White Noise Sweep"></label>
+      </button>
+
+      <button class="pad" style="--cat:#06b6d4" data-id="shakerpandeiro">
+        <span class="tag">FX</span><span class="emoji">🪇</span><span class="name">Shaker / Pandeiro</span>
+        <label class="import-file" title="Importar áudio para este pad (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="shakerpandeiro" aria-label="Importar áudio para Shaker Pandeiro"></label>
+      </button>
+
+      <!-- ---------- AMBIENT / MOTION PADS (âmbar) ---------- -->
+      <button class="pad" style="--cat:#f59e0b" data-id="shimmerstab">
+        <span class="tag">Amb</span><span class="emoji">✨</span><span class="name">Shimmer Pad Stab</span>
+        <label class="import-file" title="Importar áudio para este pad (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="shimmerstab" aria-label="Importar áudio para Shimmer Pad Stab"></label>
+      </button>
+
+      <button class="pad" style="--cat:#f59e0b" data-id="pluckdelay">
+        <span class="tag">Amb</span><span class="emoji">🎵</span><span class="name">Pluck Delay Synth</span>
+        <label class="import-file" title="Importar áudio para este pad (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="pluckdelay" aria-label="Importar áudio para Pluck Delay Synth"></label>
+      </button>
+
+      <button class="pad" style="--cat:#f59e0b" data-id="pulsepad">
+        <span class="tag">Amb</span><span class="emoji">〰️</span><span class="name">Pulse Pad</span>
+        <label class="import-file" title="Importar áudio para este pad (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="pulsepad" aria-label="Importar áudio para Pulse Pad"></label>
+      </button>
+
+      <button class="pad" style="--cat:#f59e0b" data-id="chimescelestial">
+        <span class="tag">Amb</span><span class="emoji">🎐</span><span class="name">Chimes Celestial</span>
+        <label class="import-file" title="Importar áudio para este pad (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="chimescelestial" aria-label="Importar áudio para Chimes Celestial"></label>
+      </button>
+
+      <!-- ---------- TRANSIÇÕES / VOZ / CONGREGAÇÃO ---------- -->
+      <button class="pad" style="--cat:#06b6d4" data-id="whooshpassage">
+        <span class="tag">FX</span><span class="emoji">💫</span><span class="name">Whoosh Passage</span>
+        <label class="import-file" title="Importar áudio para este pad (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="whooshpassage" aria-label="Importar áudio para Whoosh Passage"></label>
+      </button>
+
+      <button class="pad" style="--cat:#a855f7" data-id="warcry">
+        <span class="tag">Vox</span><span class="emoji">📣</span><span class="name">War Cry / Vinho Novo</span>
+        <label class="import-file" title="Importar áudio para este pad (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="warcry" aria-label="Importar áudio para War Cry"></label>
+      </button>
+
+      <button class="pad" style="--cat:#a855f7" data-id="applause">
+        <span class="tag">Vox</span><span class="emoji">🙌</span><span class="name">Applause Congregação</span>
+        <label class="import-file" title="Importar áudio para este pad (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="applause" aria-label="Importar áudio para Applause"></label>
+      </button>
+
+      <button class="pad" style="--cat:#a855f7" data-id="ambientswell">
+        <span class="tag">Vox</span><span class="emoji">🌌</span><span class="name">Ambient Swell</span>
+        <label class="import-file" title="Importar áudio para este pad (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="ambientswell" aria-label="Importar áudio para Ambient Swell"></label>
+      </button>
 
     </div>
   </section>
 
-  <div class="footer">Worship Stage FX Pro · Warm Pad &amp; 16 FX</div>
+  <!-- ====================== APP / OFFLINE (PWA) ================== -->
+  <section class="section">
+    <div class="section-head">
+      <div class="section-title">App / Offline</div>
+      <div class="section-hint" id="swHint">verificando…</div>
+    </div>
+
+    <div class="card app-card">
+      <div class="app-actions">
+        <button class="btn btn-install" id="installBtn">📲 INSTALAR APP</button>
+        <button class="btn btn-cache" id="cacheBtn">⬇️ SALVAR OFFLINE</button>
+      </div>
+      <div class="pwa-status" id="pwaStatus">
+        <span class="dot"></span>
+        <span id="pwaText">Verificando suporte offline…</span>
+      </div>
+      <div class="pwa-status" id="sampleStatus">
+        <span class="dot"></span>
+        <span id="sampleText">Nenhum sample próprio importado ainda</span>
+      </div>
+    </div>
+  </section>
+
+  <div class="footer">
+    Worship Stage FX Pro · Hollow Space Pad + 16 FX<br>
+    PWA instalável · samples próprios salvos no celular
+  </div>
 </main>
 
+<!-- Faixa de instalação (aparece quando o navegador libera o prompt) -->
+<div class="install-banner" id="installBanner">
+  <div class="ib-text">
+    <strong>Instalar Worship Stage FX</strong>
+    <span>Abra em tela cheia, sem barra do navegador</span>
+  </div>
+  <button class="ib-go" id="installBannerGo">INSTALAR</button>
+  <button class="ib-x" id="installBannerX" aria-label="Fechar">✕</button>
+</div>
+
+<div class="toast-wrap" id="toastWrap"></div>
+
 <script>
-/* FASE 2 — Web Audio API: colchão contínuo e análise em tempo real. */
+/* ==========================================================================
+   WORSHIP STAGE FX PRO — FASE 3
+   1) Hollow Space Pad com GLIDE (2 osc Sine + 1 Triangle, filtro 320Hz + LFO)
+   2) Biblioteca de 16 Worship FX / Drums / Motion Pads (síntese nativa)
+   3) Carregador de samples próprios (.wav/.mp3) com persistência em IndexedDB
+   4) PWA instalável e 100% offline (manifest inline + service worker)
+   ========================================================================== */
 (function () {
   'use strict';
 
+  /* ======================= 0. CONSTANTES / ESTADO ======================= */
+
+  var GLIDE_TIME = 1.5;   // Portamento entre notas (segundos)
+  var PAD_ATTACK = 1.8;   // Fade-in do colchão
+  var PAD_RELEASE = 1.5;  // Fade-out do colchão
+  var PAD_LEVEL = 0.62;   // Nível de sustain
+
   var audioCtx = null, masterGain = null, analyser = null, frequencyData = null;
-  var voices = new Set(); // Inclui as notas que ainda estão em release.
-  var activePad = null, activeNote = null;
-  var actionVersion = 0; // Invalida notas pendentes ao parar/trocar durante resume().
+  var glueComp = null;          // compressor suave anti-clipping
+  var fxBus = null;             // barramento dos 16 pads
+  var reverbIn = null, reverbOut = null;  // convolver (ambiente)
+  var noiseBuf = null;
+
+  var voices = new Set();       // vozes dos pads (limpeza automática)
+  var padEngine = null;         // motor único do colchão (nunca é recriado)
+  var activeNote = null, glideFrom = null, glideTimer = null;
+  var actionVersion = 0;        // invalida notas pendentes durante resume()
+
+  var customSamples = new Map();   // id -> AudioBuffer decodificado
+  var pendingSamples = new Map();  // id -> {name,type,data} aguardando decode
+  var padLabels = {};              // id -> nome visível no pad
+
   var frequencies = {
     'C': 130.81, 'C#': 138.59, 'D': 146.83, 'D#': 155.56,
     'E': 164.81, 'F': 174.61, 'F#': 185.00, 'G': 196.00,
     'G#': 207.65, 'A': 220.00, 'A#': 233.08, 'B': 246.94
   };
 
+  var $ = function (id) { return document.getElementById(id); };
+  var now = function () { return audioCtx.currentTime; };
+  var clamp = function (v, a, b) { return Math.min(b, Math.max(a, v)); };
+  var MIN = 0.0001; // exponentialRampToValueAtTime não aceita zero
+
+  /* ======================= 1. GRAFO DE ÁUDIO =========================== */
+
   async function ensureAudio() {
     if (!audioCtx) {
-      var AudioContextClass = window.AudioContext || window.webkitAudioContext;
-      if (!AudioContextClass) throw new Error('Web Audio API indisponível');
-      audioCtx = new AudioContextClass();
+      var Ctx = window.AudioContext || window.webkitAudioContext;
+      if (!Ctx) throw new Error('Web Audio API indisponível');
+      audioCtx = new Ctx();
+
+      // --- Saída principal: compressor suave evita estridência/clipping ---
+      glueComp = audioCtx.createDynamicsCompressor();
+      glueComp.threshold.value = -8;
+      glueComp.knee.value = 24;
+      glueComp.ratio.value = 2.6;
+      glueComp.attack.value = 0.012;
+      glueComp.release.value = 0.28;
+
       masterGain = audioCtx.createGain();
       masterGain.gain.setValueAtTime(0.8, audioCtx.currentTime);
+      masterGain.connect(glueComp);
+      glueComp.connect(audioCtx.destination);
+
+      // Medição do visualizador (derivação: não vai ao destination)
       analyser = audioCtx.createAnalyser();
       analyser.fftSize = 64;
       analyser.smoothingTimeConstant = 0.75;
       frequencyData = new Uint8Array(analyser.frequencyBinCount);
-      // Saída audível explícita. O analyser é uma derivação de medição:
-      // NÃO conectá-lo também ao destination, pois isso duplicaria o sinal.
-      masterGain.connect(audioCtx.destination);
       masterGain.connect(analyser);
-      // Respeita inclusive volume/mudo selecionado antes da inicialização.
+
+      // --- Barramento dos pads ---
+      fxBus = audioCtx.createGain();
+      fxBus.gain.value = 0.9;
+      fxBus.connect(masterGain);
+
+      // --- Ambiente (reverb por convolução com IR gerada, cauda escura) ---
+      reverbIn = audioCtx.createConvolver();
+      reverbIn.buffer = buildImpulse(3.2, 2.4);
+      reverbOut = audioCtx.createGain();
+      reverbOut.gain.value = 0.34;
+      reverbIn.connect(reverbOut);
+      reverbOut.connect(masterGain);
+
+      // --- Buffer de ruído compartilhado (loop) ---
+      noiseBuf = audioCtx.createBuffer(1, Math.floor(audioCtx.sampleRate * 2), audioCtx.sampleRate);
+      var nd = noiseBuf.getChannelData(0);
+      for (var i = 0; i < nd.length; i++) nd[i] = Math.random() * 2 - 1;
+
       applyVolume();
     }
-    if (audioCtx.state !== 'running') {
-      // Chamado dentro do gesto, antes do primeiro await (Chrome/Android/iOS).
-      await audioCtx.resume();
-    }
+    if (audioCtx.state !== 'running') await audioCtx.resume();
     if (audioCtx.state !== 'running') throw new Error('Contexto de áudio não está ativo');
+    flushPendingSamples();  // samples salvos no aparelho ficam prontos no 1º toque
+  }
+
+  /** Resposta ao impulso: ruído com decaimento exponencial + filtro escuro
+   *  (evita cauda metálica/estridente no reverb). */
+  function buildImpulse(seconds, decay) {
+    var rate = audioCtx.sampleRate;
+    var len = Math.max(1, Math.floor(rate * seconds));
+    var buf = audioCtx.createBuffer(2, len, rate);
+    for (var ch = 0; ch < 2; ch++) {
+      var data = buf.getChannelData(ch);
+      var lp = 0;
+      var pre = Math.floor(rate * (ch === 0 ? 0.011 : 0.019)); // pré-delay estéreo
+      for (var i = 0; i < len; i++) {
+        lp += 0.30 * ((Math.random() * 2 - 1) - lp);          // escurece o ruído
+        var env = Math.pow(1 - i / len, decay);
+        data[i] = i < pre ? 0 : lp * env * 1.6;
+      }
+    }
+    return buf;
   }
 
   function reportAudioError(err) {
     stopAll();
-    toneHint.textContent = 'Áudio indisponível. Toque novamente para tentar.';
+    toneHint.textContent = 'Áudio indisponível. Toque novamente.';
     console.error('Não foi possível iniciar o áudio:', err);
   }
 
-  function unlockAudio() {
-    ensureAudio().catch(reportAudioError);
-  }
-  // Capture executa resume() antes dos controles, inclusive no primeiro toque.
+  function unlockAudio() { ensureAudio().catch(function () {}); }
   document.addEventListener('pointerdown', unlockAudio, { capture: true });
   document.addEventListener('click', unlockAudio, { capture: true });
   document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
 
-  class AmbientPad {
-    constructor(frequency) {
-      var now = audioCtx.currentTime;
-      this.startedAt = now;
-      this.releasing = false;
-      this.disposed = false;
-      this.filter = audioCtx.createBiquadFilter();
-      this.filter.type = 'lowpass';
-      this.filter.frequency.value = 350;
-      this.filter.Q.value = 0.7;
-      this.envelope = audioCtx.createGain();
-      this.filter.connect(this.envelope);
-      this.envelope.connect(masterGain);
-      // Ataque curto audível confirma o toque sem um beep alheio ao tom.
-      this.envelope.gain.setValueAtTime(0.001, now);
-      this.envelope.gain.linearRampToValueAtTime(0.06, now + 0.02);
-      this.envelope.gain.linearRampToValueAtTime(0.6, now + 1.5);
-      this.oscillators = [-5, 5].map(function (cents) {
-        var osc = audioCtx.createOscillator();
-        osc.type = 'triangle';
-        osc.frequency.value = frequency;
-        osc.detune.value = cents;
-        return osc;
-      });
-      var sub = audioCtx.createOscillator();
-      sub.type = 'sine';
-      sub.frequency.value = frequency / 2;
-      this.oscillators.push(sub);
-      var ended = 0;
-      this.oscillators.forEach((osc) => {
-        osc.connect(this.filter);
-        osc.onended = () => {
-          if (++ended === this.oscillators.length) this.dispose();
-        };
-        osc.start(now);
-      });
-      voices.add(this);
+  /* ============ 2. HOLLOW SPACE PAD (MOTOR ÚNICO + GLIDE 1.5s) ==========
+     Os osciladores são criados UMA vez e nunca são destruídos enquanto o
+     colchão estiver ligado. Trocar de nota apenas desliza a frequência:
+         osc.frequency.linearRampToValueAtTime(novaFreq, now + 1.5)
+     ==================================================================== */
+
+  function HollowPadEngine() {
+    var t0 = now();
+    var self = this;
+
+    this.releasing = false;
+
+    /* --- soma dos osciladores --- */
+    this.sum = audioCtx.createGain();
+    this.sum.gain.value = 1;
+
+    /* --- 2x Onda Senoidal + 1x Onda Triangular (corpo oco e aveludado) --- */
+    this.oscs = [
+      { type: 'sine',     ratio: 1,    detune: -7, level: 0.50 }, // fundamental
+      { type: 'sine',     ratio: 1,    detune: +7, level: 0.50 }, // batimento suave
+      { type: 'triangle', ratio: 0.5,  detune: 0,  level: 0.42 }  // sub-ovo (hollow)
+    ].map(function (cfg) {
+      var osc = audioCtx.createOscillator();
+      var g = audioCtx.createGain();
+      osc.type = cfg.type;
+      osc.frequency.value = 130.81 * cfg.ratio;
+      osc.detune.value = cfg.detune;
+      g.gain.value = cfg.level;
+      osc.connect(g);
+      g.connect(self.sum);
+      osc.start(t0);
+      return { osc: osc, gain: g, ratio: cfg.ratio, cfg: cfg };
+    });
+
+    /* --- Filtro de 320Hz: lowpass + notch em série, bandpass em paralelo --- */
+    this.lp = audioCtx.createBiquadFilter();
+    this.lp.type = 'lowpass';
+    this.lp.frequency.value = 320;
+    this.lp.Q.value = 0.7;
+
+    this.notch = audioCtx.createBiquadFilter();
+    this.notch.type = 'notch';
+    this.notch.frequency.value = 620;   // "escava" o médio -> som oco
+    this.notch.Q.value = 1.1;
+
+    this.bp = audioCtx.createBiquadFilter();
+    this.bp.type = 'bandpass';
+    this.bp.frequency.value = 320;
+    this.bp.Q.value = 1.0;
+
+    this.bpGain = audioCtx.createGain();
+    this.bpGain.gain.value = 0.16;      // brilho oco, bem discreto
+
+    this.toneGain = audioCtx.createGain();
+    this.toneGain.gain.value = 0.55;
+
+    this.sum.connect(this.lp);
+    this.lp.connect(this.notch);
+    this.notch.connect(this.toneGain);
+    this.sum.connect(this.bp);
+    this.bp.connect(this.bpGain);
+    this.bpGain.connect(this.toneGain);
+
+    /* --- Movimento espacial --- */
+    this.panner = audioCtx.createStereoPanner ? audioCtx.createStereoPanner() : null;
+    this.env = audioCtx.createGain();
+    this.env.gain.value = 0;
+
+    if (this.panner) {
+      this.toneGain.connect(this.panner);
+      this.panner.connect(this.env);
+    } else {
+      this.toneGain.connect(this.env);
+    }
+    this.env.connect(masterGain);
+
+    // Envio de ambiente (espaço, sem borrar o ataque)
+    this.revSend = audioCtx.createGain();
+    this.revSend.gain.value = 0.20;
+    this.env.connect(this.revSend);
+    this.revSend.connect(reverbIn);
+
+    /* --- LFOs ultra-lentos (movimento contínuo) --- */
+    // LFO 0.2Hz: abre/fecha o filtro de 320Hz (respiração do pad)
+    this.lfo = audioCtx.createOscillator();
+    this.lfo.type = 'sine';
+    this.lfo.frequency.value = 0.2;               // 0.2 Hz — 1 ciclo a cada 5s
+    this.lfoDepth = audioCtx.createGain();
+    this.lfoDepth.gain.value = 110;               // ±110Hz no lowpass
+    this.lfo.connect(this.lfoDepth);
+    this.lfoDepth.connect(this.lp.frequency);
+
+    this.lfoBp = audioCtx.createGain();
+    this.lfoBp.gain.value = 70;                   // ±70Hz no bandpass
+    this.lfoDepth.connect(this.lfoBp);
+    this.lfoBp.connect(this.bp.frequency);
+
+    this.lfoNotch = audioCtx.createGain();
+    this.lfoNotch.gain.value = -45;
+    this.lfoDepth.connect(this.lfoNotch);
+    this.lfoNotch.connect(this.notch.frequency);
+
+    // LFO espacial: passeio estéreo quase imperceptível (0.05Hz)
+    if (this.panner) {
+      this.lfoPan = audioCtx.createOscillator();
+      this.lfoPan.type = 'sine';
+      this.lfoPan.frequency.value = 0.05;
+      this.lfoPanDepth = audioCtx.createGain();
+      this.lfoPanDepth.gain.value = 0.5;
+      this.lfoPan.connect(this.lfoPanDepth);
+      this.lfoPanDepth.connect(this.panner.pan);
+      this.lfoPan.start(t0);
     }
 
-    release() {
-      if (this.releasing || this.disposed) return;
-      this.releasing = true;
-      var now = audioCtx.currentTime;
-      var gain = this.envelope.gain;
-      if (typeof gain.cancelAndHoldAtTime === 'function') {
-        gain.cancelAndHoldAtTime(now);
-      } else {
-        // Reconstitui o ataque em navegadores sem cancelAndHoldAtTime.
-        var elapsed = Math.max(0, now - this.startedAt);
-        var current = elapsed < 0.02
-          ? 0.001 + (0.06 - 0.001) * elapsed / 0.02
-          : 0.06 + (0.6 - 0.06) * Math.min(1, (elapsed - 0.02) / 1.48);
-        gain.cancelScheduledValues(now);
-        gain.setValueAtTime(current, now);
-      }
-      gain.exponentialRampToValueAtTime(0.001, now + 1.5);
-      gain.setValueAtTime(0, now + 1.5);
-      this.oscillators.forEach(function (osc) { osc.stop(now + 1.5); });
-    }
+    // LFO de detune oposto: coro lento entre as duas senoides (0.09Hz)
+    this.lfoDet = audioCtx.createOscillator();
+    this.lfoDet.type = 'sine';
+    this.lfoDet.frequency.value = 0.09;
+    this.lfoDetA = audioCtx.createGain(); this.lfoDetA.gain.value = 9;
+    this.lfoDetB = audioCtx.createGain(); this.lfoDetB.gain.value = -9;
+    this.lfoDet.connect(this.lfoDetA);
+    this.lfoDet.connect(this.lfoDetB);
+    this.lfoDetA.connect(this.oscs[0].osc.detune);
+    this.lfoDetB.connect(this.oscs[1].osc.detune);
 
-    stopImmediately() {
-      if (this.disposed) return;
-      var now = audioCtx.currentTime;
-      this.envelope.gain.cancelScheduledValues(now);
-      this.envelope.gain.setValueAtTime(0, now);
-      this.oscillators.forEach(function (osc) {
-        // stop(now) substitui o stop futuro agendado pelo release.
-        try { osc.stop(now); } catch (err) {
-          if (err.name !== 'InvalidStateError') console.error(err);
-        }
-      });
-      this.dispose();
-    }
-
-    dispose() {
-      if (this.disposed) return;
-      this.disposed = true;
-      this.oscillators.forEach(function (osc) {
-        osc.onended = null;
-        osc.disconnect();
-      });
-      this.filter.disconnect();
-      this.envelope.disconnect();
-      voices.delete(this);
-    }
+    this.lfo.start(t0);
+    this.lfoDet.start(t0);
   }
 
-  /* ---------- 2. Volume Master ---------- */
-  var vol = document.getElementById('masterVol');
-  var volOut = document.getElementById('volValue');
-  var volHint = document.getElementById('masterHint');
+  /**
+   * Troca (ou desliza) a nota do colchão SEM recriar osciladores.
+   * @param {number} freq  frequência alvo em Hz
+   * @param {boolean} glide true = portamento de 1.5s; false = entra direto
+   */
+  HollowPadEngine.prototype.setFrequency = function (freq, glide) {
+    var t = now();
+    var end = t + (glide ? GLIDE_TIME : 0.02);
+    this.oscs.forEach(function (o) {
+      var target = freq * o.ratio;
+      var param = o.osc.frequency;
+      if (typeof param.cancelAndHoldAtTime === 'function') {
+        param.cancelAndHoldAtTime(t);          // preserva o valor atual do glide
+      } else {
+        param.cancelScheduledValues(t);
+        param.setValueAtTime(param.value, t);
+      }
+      if (glide) {
+        // GLIDE / PORTAMENTO: desliza suave da nota antiga até a nova
+        param.linearRampToValueAtTime(target, end);
+      } else {
+        param.setValueAtTime(target, t);
+      }
+    });
+  };
+
+  /** Fade-in de 1.8s (ataque do colchão). */
+  HollowPadEngine.prototype.start = function () {
+    var t = now(), g = this.env.gain;
+    this.releasing = false;
+    if (typeof g.cancelAndHoldAtTime === 'function') g.cancelAndHoldAtTime(t);
+    else { var cur = g.value; g.cancelScheduledValues(t); g.setValueAtTime(cur, t); }
+    g.linearRampToValueAtTime(PAD_LEVEL * 0.65, t + PAD_ATTACK * 0.66);
+    g.linearRampToValueAtTime(PAD_LEVEL, t + PAD_ATTACK);
+  };
+
+  /** Fade-out de 1.5s. */
+  HollowPadEngine.prototype.release = function () {
+    if (this.releasing) return;
+    this.releasing = true;
+    var t = now(), g = this.env.gain;
+    if (typeof g.cancelAndHoldAtTime === 'function') g.cancelAndHoldAtTime(t);
+    else { var cur = g.value; g.cancelScheduledValues(t); g.setValueAtTime(cur, t); }
+    g.linearRampToValueAtTime(PAD_LEVEL * 0.35, t + PAD_RELEASE * 0.5);
+    g.linearRampToValueAtTime(MIN, t + PAD_RELEASE);
+    g.setValueAtTime(0, t + PAD_RELEASE + 0.02);
+  };
+
+  /** Corte imediato (STOP ALL). */
+  HollowPadEngine.prototype.kill = function () {
+    var t = now(), g = this.env.gain;
+    g.cancelScheduledValues(t);
+    g.setValueAtTime(g.value, t);
+    g.linearRampToValueAtTime(0, t + 0.06);   // micro-fade evita estalo
+    this.releasing = false;
+  };
+
+  HollowPadEngine.prototype.isSounding = function () {
+    return this.env.gain.value > 0.001;
+  };
+
+  /* ======================= 3. VOLUME MASTER ============================ */
+
+  var vol = $('masterVol');
+  var volOut = $('volValue');
+  var volHint = $('masterHint');
 
   function applyVolume() {
     var v = parseInt(vol.value, 10);
     vol.style.setProperty('--fill', v + '%');
     volOut.textContent = v + '%';
     volHint.textContent = v === 0 ? 'Mudo' : (v > 85 ? 'Saída alta' : 'Saída principal');
-    if (masterGain) {
-      masterGain.gain.setTargetAtTime(v / 100, audioCtx.currentTime, 0.015);
-    }
+    if (masterGain) masterGain.gain.setTargetAtTime(v / 100, now(), 0.015);
   }
   vol.addEventListener('input', applyVolume);
   applyVolume();
 
-  /* ---------- 3. Colchão de Adoração (Tone Pads) ---------- */
-  var tones = document.querySelectorAll('.tone');
-  var toneHint = document.getElementById('toneHint');
+  /* ============ 4. COLCHÃO: SELEÇÃO DE NOTA, GLIDE E UI ================ */
+
+  var tones = Array.prototype.slice.call(document.querySelectorAll('.tone'));
+  var toneHint = $('toneHint');
 
   function updateToneUI() {
     tones.forEach(function (btn) {
-      var selected = btn.dataset.note === activeNote;
-      btn.classList.toggle('active', selected);
-      btn.setAttribute('aria-pressed', String(selected));
+      var note = btn.dataset.note;
+      btn.classList.toggle('active', note === activeNote);
+      btn.classList.toggle('gliding', note === glideFrom);
+      btn.setAttribute('aria-pressed', String(note === activeNote));
     });
-    toneHint.textContent = activeNote ? 'Tom: ' + activeNote : 'Toque para sustentar';
+    if (!toneHint) return;
+    if (glideFrom && activeNote) toneHint.textContent = 'GLIDE ' + glideFrom + ' → ' + activeNote;
+    else if (activeNote) toneHint.textContent = 'Sustentando: ' + activeNote;
+    else toneHint.textContent = 'Toque para sustentar';
   }
-  updateToneUI(); // Remove o destaque estático da Fase 1, sem tocar ao carregar.
 
-  async function toggleKeyPad(note) {
+  function clearGlide() {
+    if (glideTimer) { clearTimeout(glideTimer); glideTimer = null; }
+    glideFrom = null;
+    updateToneUI();
+  }
+
+  async function selectNote(note) {
     var version = ++actionVersion;
     try {
       await ensureAudio();
-      // STOP ALL ou um toque mais recente vence uma inicialização pendente.
-      if (version !== actionVersion) return;
-      var previous = activePad;
+      if (version !== actionVersion) return;   // STOP ALL / toque mais recente vence
+
+      if (!padEngine) padEngine = new HollowPadEngine();
+
       if (activeNote === note) {
-        activePad = null;
+        // Toca a mesma nota novamente => desliga com release de 1.5s
+        padEngine.release();
         activeNote = null;
-      } else {
-        // Inicia a nova voz antes de liberar a anterior: não há lacuna sonora.
-        activePad = new AmbientPad(frequencies[note]);
-        activeNote = note;
+        clearGlide();
+        return;
       }
-      if (previous) previous.release();
+
+      var hasSound = (activeNote && padEngine.isSounding()) || (padEngine.isSounding() && !padEngine.releasing);
+      if (hasSound && activeNote) {
+        // GLIDE: um único motor, só deslizando a frequência (sem recriar nada)
+        padEngine.setFrequency(frequencies[note], true);
+        glideFrom = activeNote;
+        if (glideTimer) clearTimeout(glideTimer);
+        glideTimer = setTimeout(clearGlide, GLIDE_TIME * 1000 + 60);
+      } else {
+        // Primeira nota (ou retomada depois do release): entra direto e sobe o fade
+        padEngine.setFrequency(frequencies[note], false);
+        padEngine.start();
+        clearGlide();
+      }
+      activeNote = note;
       updateToneUI();
     } catch (err) {
       if (version === actionVersion) reportAudioError(err);
@@ -743,125 +1226,630 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
   }
 
   tones.forEach(function (btn) {
-    btn.addEventListener('click', function () { toggleKeyPad(btn.dataset.note); });
+    btn.addEventListener('click', function () { selectNote(btn.dataset.note); });
   });
+  updateToneUI();
 
-  /* ---------- 4. Cenas de Culto ---------- */
-  var chips = document.querySelectorAll('.chip');
+  /* ======================= 5. CENAS DE CULTO =========================== */
+
+  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
   chips.forEach(function (chip) {
     chip.addEventListener('click', function () {
       chips.forEach(function (c) { c.classList.remove('active'); });
       chip.classList.add('active');
       chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-      // TODO Fase 2: carregar preset da cena chip.dataset.scene
     });
   });
 
-  /* ---------- 5. Pads de Disparo ---------- */
-  var pads = document.querySelectorAll('.pad');
-  var padHint = document.getElementById('padHint');
+  /* ============ 6. BIBLIOTECA DOS 16 WORSHIP FX / DRUMS ================ */
 
-  var customSamples = new Map();
-
-  function noiseBuffer(duration) {
-    var buffer = audioCtx.createBuffer(1, Math.ceil(audioCtx.sampleRate * duration), audioCtx.sampleRate);
-    var data = buffer.getChannelData(0);
-    for (var i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
-    return buffer;
-  }
-
-  function transient(duration) {
-    var nodes = [], stopped = false;
-    var voice = {
-      add: function (node) { nodes.push(node); return node; },
-      stopImmediately: function () {
-        if (stopped) return; stopped = true;
-        nodes.forEach(function (node) { try { if (node.stop) node.stop(); } catch (_) {} try { node.disconnect(); } catch (_) {} });
-        voices.delete(voice);
-      }
+  /** Voz temporária: agenda a limpeza dos nós. */
+  function createVoice(seconds) {
+    var v = { nodes: [], stopped: false };
+    v.add = function (node) { if (node) v.nodes.push(node); return node; };
+    v.send = function (node, amount) {
+      var g = audioCtx.createGain();
+      g.gain.value = amount;
+      v.add(g);
+      node.connect(g);
+      g.connect(reverbIn);
+      return g;
     };
-    voices.add(voice);
-    setTimeout(voice.stopImmediately, (duration + .15) * 1000);
-    return voice;
+    v.stopImmediately = function () {
+      if (v.stopped) return;
+      v.stopped = true;
+      clearTimeout(v.timer);
+      v.nodes.forEach(function (n) {
+        try { if (n.stop) n.stop(); } catch (e) {}
+        try { n.disconnect(); } catch (e) {}
+      });
+      voices.delete(v);
+    };
+    voices.add(v);
+    v.timer = setTimeout(v.stopImmediately, Math.max(160, (seconds + 0.4) * 1000));
+    return v;
   }
 
-  function osc(v, type, from, to, duration, gain, delay) {
-    var t = audioCtx.currentTime + (delay || 0), o = v.add(audioCtx.createOscillator()), g = v.add(audioCtx.createGain());
-    o.type = type; o.frequency.setValueAtTime(from, t);
-    if (to) o.frequency.exponentialRampToValueAtTime(to, t + duration);
-    g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(gain, t + .004); g.gain.exponentialRampToValueAtTime(.0001, t + duration);
-    o.connect(g); g.connect(masterGain); o.start(t); o.stop(t + duration); return o;
+  /** Conecta um nó ao destino final (fxBus) com pan e envio de reverb. */
+  function route(v, node, opts, dur) {
+    var dest = opts.dest || fxBus;
+    if (opts.reverb) v.send(node, opts.reverb);
+    if ((opts.pan !== undefined || opts.panSweep) && audioCtx.createStereoPanner) {
+      var t = now() + (opts.delay || 0);
+      var p = v.add(audioCtx.createStereoPanner());
+      var from = opts.panSweep ? opts.panSweep[0] : opts.pan;
+      p.pan.setValueAtTime(clamp(from, -1, 1), t);
+      if (opts.panSweep) p.pan.linearRampToValueAtTime(clamp(opts.panSweep[1], -1, 1), t + dur);
+      node.connect(p);
+      p.connect(dest);
+    } else {
+      node.connect(dest);
+    }
   }
 
-  function noise(v, duration, gain, filterType, frequency, endFrequency, delay) {
-    var t = audioCtx.currentTime + (delay || 0), src = v.add(audioCtx.createBufferSource()), f = v.add(audioCtx.createBiquadFilter()), g = v.add(audioCtx.createGain());
-    src.buffer = noiseBuffer(duration); f.type = filterType || 'highpass'; f.frequency.setValueAtTime(frequency || 1000, t);
-    if (endFrequency) f.frequency.exponentialRampToValueAtTime(endFrequency, t + duration);
-    f.Q.value = filterType === 'bandpass' ? 1.2 : .7;
-    g.gain.setValueAtTime(.0001, t); g.gain.linearRampToValueAtTime(gain, t + .006); g.gain.exponentialRampToValueAtTime(.0001, t + duration);
-    src.connect(f); f.connect(g); g.connect(masterGain); src.start(t); src.stop(t + duration);
+  /** Oscilador com envelope de amplitude (attack → decay exponencial). */
+  function tone(v, opts) {
+    var t = now() + (opts.delay || 0);
+    var dur = opts.dur || 0.4;
+    var o = v.add(audioCtx.createOscillator());
+    var g = v.add(audioCtx.createGain());
+    var peak = opts.gain === undefined ? 0.3 : opts.gain;
+    var atk = opts.attack === undefined ? 0.006 : opts.attack;
+
+    o.type = opts.type || 'sine';
+    o.frequency.setValueAtTime(Math.max(1, opts.from), t);
+    if (opts.to) o.frequency.exponentialRampToValueAtTime(Math.max(1, opts.to), t + dur);
+
+    g.gain.setValueAtTime(MIN, t);
+    g.gain.linearRampToValueAtTime(peak, t + atk);
+    if (opts.hold) g.gain.setValueAtTime(peak, t + atk + opts.hold);
+    g.gain.exponentialRampToValueAtTime(MIN, t + dur);
+
+    o.connect(g);
+    route(v, g, opts, dur);
+    o.start(t);
+    o.stop(t + dur + 0.03);
+    return g;   // devolve o envelope (permite envios extras, ex.: delay do pad 10)
   }
 
-  function playSynth(id) {
-    var duration = 2, v;
-    if (id === 'kick808') { duration=.32; v=transient(duration); osc(v,'sine',130,30,.3,1.0); }
-    else if (id === 'snare') { duration=.26; v=transient(duration); osc(v,'triangle',160,95,.2,.38); noise(v,.25,.55,'highpass',900); }
-    else if (id === 'clap') { duration=.25; v=transient(duration); [0,.045,.09].forEach(function(d){ noise(v,.07,.42,'bandpass',1200,null,d); }); }
-    else if (id === 'snap') { duration=.08; v=transient(duration); osc(v,'sine',1700,1250,.06,.35); noise(v,.045,.22,'highpass',3500); }
-    else if (id === 'riser') { duration=1.65; v=transient(duration); osc(v,'sine',80,700,1.6,.28); noise(v,1.6,.3,'bandpass',500,5000); }
-    else if (id === 'impact') { duration=1.25; v=transient(duration); osc(v,'sine',80,20,1.2,.95); noise(v,.18,.22,'lowpass',500); }
-    else if (id === 'noise') { duration=.85; v=transient(duration); noise(v,.8,.5,'bandpass',300,1800); }
-    else if (id === 'shaker' || id === 'pandeiro') { duration=.35; v=transient(duration); [0,.08,.16,.24].forEach(function(d,i){ noise(v,.035,i? .25:.4,'highpass',4500,null,d); }); }
-    else if (id === 'chimes') { duration=1.85; v=transient(duration); [1046,1318,1568,2093].forEach(function(f,i){ osc(v,'sine',f,null,1.8,.16,i*.018); }); }
-    else if (id === 'strings') { duration=2.1; v=transient(duration); [220,277.18,329.63].forEach(function(f){ osc(v,'triangle',f,f*1.006,2,.14); }); }
-    else if (id === 'choir') { duration=2.2; v=transient(duration); [196,246.94,293.66].forEach(function(f){ osc(v,'sine',f,f*1.015,2.1,.16); }); }
-    else if (id === 'grito') { duration=1.15; v=transient(duration); osc(v,'sawtooth',180,340,1,.18); noise(v,1,.2,'bandpass',900,1800); }
-    else if (id === 'aplausos') { duration=1.5; v=transient(duration); for(var i=0;i<12;i++) noise(v,.09,.16,'bandpass',1000+Math.random()*1800,null,i*.1); }
-    else if (id === 'subdrop') { duration=1.55; v=transient(duration); osc(v,'sine',110,22,1.5,.85); }
-    else if (id === 'reverse') { duration=1.25; v=transient(duration); noise(v,1.2,.4,'bandpass',250,5000); osc(v,'triangle',120,800,1.2,.16); }
+  /** Fonte de ruído filtrado (buffer compartilhado em loop). */
+  function noise(v, opts) {
+    var t = now() + (opts.delay || 0);
+    var dur = opts.dur || 0.4;
+    var src = v.add(audioCtx.createBufferSource());
+    var f = v.add(audioCtx.createBiquadFilter());
+    var g = v.add(audioCtx.createGain());
+    var peak = opts.gain === undefined ? 0.3 : opts.gain;
+    var atk = opts.attack === undefined ? 0.005 : opts.attack;
+
+    src.buffer = noiseBuf;
+    src.loop = true;
+    src.loopStart = 0;
+    src.loopEnd = noiseBuf.duration;
+    src.playbackRate.value = opts.rate || 1;
+
+    f.type = opts.type || 'bandpass';
+    f.frequency.setValueAtTime(Math.max(20, opts.freq || 1200), t);
+    if (opts.to) f.frequency.exponentialRampToValueAtTime(Math.max(20, opts.to), t + dur);
+    f.Q.value = opts.q === undefined ? 0.9 : opts.q;
+
+    g.gain.setValueAtTime(MIN, t);
+    if (atk > 0.02) {
+      g.gain.linearRampToValueAtTime(peak, t + atk);        // crescendo (swell)
+      g.gain.linearRampToValueAtTime(MIN, t + dur);         // corte no topo
+    } else {
+      g.gain.linearRampToValueAtTime(peak, t + atk);
+      if (opts.hold) g.gain.setValueAtTime(peak, t + atk + opts.hold);
+      g.gain.exponentialRampToValueAtTime(MIN, t + dur);
+    }
+
+    src.connect(f);
+    f.connect(g);
+    route(v, g, opts, dur);
+    src.start(t, Math.random() * 1.5);
+    src.stop(t + dur + 0.03);
+    return g;
   }
 
-  function playPad(id) {
-    var buffer = customSamples.get(id);
-    if (!buffer) return playSynth(id);
-    var src = audioCtx.createBufferSource(), v = transient(buffer.duration);
-    v.add(src); src.buffer = buffer; src.connect(masterGain); src.start();
+  /** Nota de referência musical dos pads melódicos. */
+  function refFreq(octaveUp) {
+    var base = activeNote ? frequencies[activeNote] : 174.61; // F3 padrão
+    return base * (octaveUp ? 2 : 1);
   }
+
+  var SYNTHS = {
+
+    /* 01 — Sub Drop 808: impacto grave profundo no tempo 1 */
+    subdrop808: function () {
+      var v = createVoice(2.6);
+      tone(v, { type: 'sine', from: 105, to: 29, dur: 1.9, gain: 0.95, attack: 0.012 });
+      tone(v, { type: 'sine', from: 210, to: 58, dur: 0.35, gain: 0.18, attack: 0.008 });
+      noise(v, { dur: 0.07, gain: 0.20, type: 'lowpass', freq: 480, to: 160, attack: 0.002 });
+    },
+
+    /* 02 — Worship Snare + Reverb: caixa encorpada de louvor */
+    worshipsnare: function () {
+      var v = createVoice(1.2);
+      tone(v, { type: 'triangle', from: 224, to: 148, dur: 0.24, gain: 0.42, attack: 0.004 });
+      tone(v, { type: 'sine', from: 330, to: 246, dur: 0.18, gain: 0.16, attack: 0.004 });
+      noise(v, { dur: 0.34, gain: 0.46, type: 'bandpass', freq: 1900, q: 0.8, attack: 0.003, reverb: 0.40 });
+      noise(v, { dur: 0.14, gain: 0.12, type: 'highpass', freq: 5200, attack: 0.002, reverb: 0.22 });
+    },
+
+    /* 03 — Clap Cathedral: palmas duplas com reverb longo */
+    clapcathedral: function () {
+      var v = createVoice(2.0);
+      [0, 0.026, 0.055, 0.088].forEach(function (dl, i) {
+        noise(v, {
+          dur: 0.055, gain: i === 3 ? 0.40 : 0.28, type: 'bandpass',
+          freq: 1450 + i * 130, q: 1.1, attack: 0.002, delay: dl, reverb: 0.55
+        });
+      });
+      noise(v, { dur: 0.55, gain: 0.18, type: 'bandpass', freq: 1150, q: 0.7, attack: 0.03, delay: 0.1, reverb: 0.6, panSweep: [-0.3, 0.3] });
+    },
+
+    /* 04 — Snap Reverb: estalo seco com ambiente */
+    snapreverb: function () {
+      var v = createVoice(1.5);
+      noise(v, { dur: 0.032, gain: 0.40, type: 'highpass', freq: 4200, attack: 0.001, reverb: 0.42 });
+      tone(v, { type: 'sine', from: 1850, to: 900, dur: 0.05, gain: 0.15, attack: 0.001, reverb: 0.30 });
+    },
+
+    /* 05 — Swell Riser: whoosh crescendo de subida */
+    swellriser: function () {
+      var v = createVoice(3.9);
+      noise(v, { dur: 3.25, gain: 0.50, type: 'bandpass', freq: 260, to: 7200, q: 0.8, attack: 3.05, panSweep: [-0.6, 0.6] });
+      noise(v, { dur: 3.2, gain: 0.22, type: 'highpass', freq: 300, to: 9000, attack: 3.0 });
+      tone(v, { type: 'sine', from: 48, to: 190, dur: 3.2, gain: 0.16, attack: 3.0 });
+    },
+
+    /* 06 — Reverse Crash: prato invertido para transição/sugada */
+    reversecrash: function () {
+      var v = createVoice(2.4);
+      noise(v, { dur: 1.75, gain: 0.52, type: 'highpass', freq: 420, to: 9000, attack: 1.62, reverb: 0.35 });
+      noise(v, { dur: 2.0, gain: 0.26, type: 'bandpass', freq: 900, to: 3200, q: 0.7, attack: 1.85, reverb: 0.5 });
+      // cauda curta no topo dá a sensação de prato "abrindo"
+      noise(v, { dur: 0.5, gain: 0.12, type: 'highpass', freq: 6000, attack: 0.01, delay: 1.7, reverb: 0.4 });
+    },
+
+    /* 07 — White Noise Sweep: ruído de ar contínuo */
+    whitenoisesweep: function () {
+      var v = createVoice(2.9);
+      noise(v, { dur: 2.6, gain: 0.28, type: 'bandpass', freq: 240, to: 2400, q: 0.6, attack: 0.45, panSweep: [-0.9, 0.9] });
+      noise(v, { dur: 2.6, gain: 0.12, type: 'highpass', freq: 900, to: 6000, attack: 0.6 });
+    },
+
+    /* 08 — Shaker / Pandeiro: percussão de ritmo (colcheias 120 BPM) */
+    shakerpandeiro: function () {
+      var v = createVoice(2.1);
+      var hits = [0.32, 0.16, 0.26, 0.13, 0.30, 0.15, 0.28, 0.20];
+      hits.forEach(function (g, i) {
+        var dl = i * 0.25;
+        noise(v, { dur: 0.035, gain: g, type: 'highpass', freq: 7200, attack: 0.001, delay: dl, pan: i % 2 ? 0.18 : -0.18 });
+        // jingles do pandeiro nas cabeças do tempo
+        if (i % 2 === 0) noise(v, { dur: 0.12, gain: g * 0.55, type: 'bandpass', freq: 5200, q: 1.4, attack: 0.001, delay: dl, reverb: 0.22 });
+      });
+    },
+
+    /* 09 — Shimmer Pad Stab: ataque brilhante uma oitava acima */
+    shimmerstab: function () {
+      var f = refFreq(true), v = createVoice(3.0);
+      var partials = [[1, 0.26, 2.4], [1.5, 0.12, 2.0], [2, 0.09, 1.6], [3, 0.05, 1.2]];
+      partials.forEach(function (p) {
+        tone(v, { type: 'sine', from: f * p[0], dur: p[2], gain: p[1], attack: 0.008, reverb: 0.42, pan: p[0] > 1.5 ? 0.22 : -0.18 });
+      });
+      tone(v, { type: 'triangle', from: f / 2, dur: 2.2, gain: 0.12, attack: 0.01, reverb: 0.3 });
+    },
+
+    /* 10 — Pluck Delay Synth: staccato estalado com eco */
+    pluckdelay: function () {
+      var f = refFreq(false), v = createVoice(3.2);
+      // delay próprio do pad (eco com feedback filtrado)
+      var dly = v.add(audioCtx.createDelay(1.5));
+      var fb = v.add(audioCtx.createGain());
+      var damp = v.add(audioCtx.createBiquadFilter());
+      var wet = v.add(audioCtx.createGain());
+      dly.delayTime.value = 0.30;
+      fb.gain.value = 0.38;
+      damp.type = 'lowpass'; damp.frequency.value = 2200; damp.Q.value = 0.5;
+      wet.gain.value = 0.5;
+      dly.connect(damp); damp.connect(fb); fb.connect(dly);
+      dly.connect(wet); wet.connect(fxBus); v.send(wet, 0.2);
+
+      [0, 0.30, 0.60].forEach(function (dl, i) {
+        var g1 = tone(v, { type: 'triangle', from: f, dur: 0.34, gain: 0.34 / (i + 1), attack: 0.003, delay: dl });
+        tone(v, { type: 'sine', from: f * 2, dur: 0.22, gain: 0.14 / (i + 1), attack: 0.003, delay: dl });
+        if (i === 0) { try { g1.connect(dly); } catch (e) {} }   // pluck alimenta o eco
+      });
+      tone(v, { type: 'sine', from: f * 1.5, dur: 0.5, gain: 0.12, attack: 0.004, delay: 0.15, reverb: 0.3 });
+    },
+
+    /* 11 — Pulse Pad: pulso rítmico em colcheias */
+    pulsepad: function () {
+      var f = refFreq(false), v = createVoice(2.6);
+      for (var i = 0; i < 8; i++) {
+        var dl = i * 0.25, accent = i % 4 === 0 ? 1.25 : 1;
+        tone(v, {
+          type: 'sine', from: f, dur: 0.22, gain: 0.26 * accent,
+          attack: 0.02, delay: dl, reverb: 0.24, pan: i % 2 ? 0.22 : -0.22
+        });
+        if (i % 2 === 0) tone(v, { type: 'triangle', from: f * 2, dur: 0.16, gain: 0.10, attack: 0.02, delay: dl, reverb: 0.2 });
+      }
+    },
+
+    /* 12 — Chimes Celestial: sino harmônico longo */
+    chimescelestial: function () {
+      var f = refFreq(true), v = createVoice(5.2);
+      var partials = [
+        [1.00, 0.22, 4.6, 0], [2.01, 0.13, 3.4, 0.012], [2.99, 0.09, 2.6, 0.026],
+        [4.24, 0.06, 1.9, 0.04], [5.43, 0.04, 1.4, 0.055]
+      ];
+      partials.forEach(function (p) {
+        tone(v, {
+          type: 'sine', from: f * p[0], dur: p[2], gain: p[1],
+          attack: 0.006, delay: p[3], reverb: 0.55,
+          pan: (p[0] % 2 < 1 ? -0.25 : 0.25)
+        });
+      });
+    },
+
+    /* 13 — Whoosh Passage: transição rápida de estrofe */
+    whooshpassage: function () {
+      var v = createVoice(1.9);
+      noise(v, { dur: 1.25, gain: 0.55, type: 'bandpass', freq: 380, to: 4800, q: 0.9, attack: 0.30, panSweep: [-0.95, 0.95] });
+      noise(v, { dur: 1.15, gain: 0.20, type: 'highpass', freq: 1200, to: 7000, attack: 0.5, delay: 0.08 });
+      tone(v, { type: 'sine', from: 90, to: 58, dur: 1.2, gain: 0.16, attack: 0.35 });
+    },
+
+    /* 14 — War Cry / Vinho Novo: grito/efeito de celebração (sem serra) */
+    warcry: function () {
+      var v = createVoice(2.0);
+      // "grito" formantado: triangle + sine com bandpass subindo (sem serra/estridente)
+      var shout = v.add(audioCtx.createGain());
+      var form = v.add(audioCtx.createBiquadFilter());
+      form.type = 'bandpass';
+      form.frequency.setValueAtTime(520, now() + 0.06);
+      form.frequency.linearRampToValueAtTime(1150, now() + 0.45);
+      form.frequency.linearRampToValueAtTime(760, now() + 1.45);
+      form.Q.value = 2.2;
+      shout.gain.setValueAtTime(MIN, now() + 0.06);
+      shout.gain.linearRampToValueAtTime(0.34, now() + 0.22);
+      shout.gain.exponentialRampToValueAtTime(MIN, now() + 1.5);
+      shout.connect(form); form.connect(fxBus); v.send(form, 0.42);
+
+      [[1, 'triangle', 0.6], [1.5, 'sine', 0.35], [2, 'sine', 0.22]].forEach(function (p) {
+        var o = v.add(audioCtx.createOscillator()), g = v.add(audioCtx.createGain());
+        o.type = p[1];
+        o.frequency.setValueAtTime(150 * p[0], now() + 0.06);
+        o.frequency.linearRampToValueAtTime(288 * p[0], now() + 0.42);
+        o.frequency.linearRampToValueAtTime(176 * p[0], now() + 1.45);
+        g.gain.value = p[2];
+        o.connect(g); g.connect(shout);
+        o.start(now() + 0.06); o.stop(now() + 1.55);
+      });
+      // congregação respondendo
+      noise(v, { dur: 1.3, gain: 0.20, type: 'bandpass', freq: 700, to: 1500, q: 0.6, attack: 0.25, delay: 0.05, reverb: 0.5, panSweep: [-0.7, 0.7] });
+    },
+
+    /* 15 — Applause Congregação: aplausos atmosféricos */
+    applause: function () {
+      var v = createVoice(3.4);
+      for (var i = 0; i < 70; i++) {
+        var dl = 0.05 + Math.random() * 2.5;
+        var density = 1 - Math.abs(dl - 1.3) / 1.6;      // mais denso no meio
+        noise(v, {
+          dur: 0.035 + Math.random() * 0.03,
+          gain: clamp(0.035 + Math.random() * 0.075 * density, 0.02, 0.11),
+          type: 'bandpass', freq: 800 + Math.random() * 2200, q: 1.3,
+          attack: 0.001, delay: dl, pan: Math.random() * 2 - 1
+        });
+      }
+      // leito de "salão" para dar corpo
+      noise(v, { dur: 3.0, gain: 0.07, type: 'lowpass', freq: 1400, attack: 1.2, reverb: 0.4 });
+    },
+
+    /* 16 — Ambient Swell: efeito espacial */
+    ambientswell: function () {
+      var f = refFreq(false), v = createVoice(5.6);
+      [1, 1.5, 2].forEach(function (r, i) {
+        tone(v, {
+          type: i === 0 ? 'triangle' : 'sine',
+          from: f * r, to: f * r * 1.004, dur: 4.8 - i * 0.4,
+          gain: 0.20 / (i * 0.6 + 1), attack: 1.7 + i * 0.25,
+          reverb: 0.55, panSweep: [i % 2 ? 0.6 : -0.6, i % 2 ? -0.6 : 0.6]
+        });
+      });
+      noise(v, { dur: 4.4, gain: 0.10, type: 'bandpass', freq: 400, to: 2600, q: 0.5, attack: 1.8, reverb: 0.4 });
+    }
+  };
+
+  /* ======================= 7. DISPARO DOS PADS ========================= */
+
+  var pads = Array.prototype.slice.call(document.querySelectorAll('.pad'));
+  var padHint = $('padHint');
+  var padById = {};
 
   pads.forEach(function (pad) {
-    var importer = pad.querySelector('.import-file');
-    var input = importer.querySelector('input');
-    importer.addEventListener('pointerdown', function (event) { event.stopPropagation(); });
-    importer.addEventListener('click', function (event) { event.stopPropagation(); });
-    input.addEventListener('change', async function (event) {
-      var file = event.target.files[0]; if (!file) return;
-      try {
-        await ensureAudio();
-        var buffer = await audioCtx.decodeAudioData(await file.arrayBuffer());
-        customSamples.set(pad.dataset.id, buffer); pad.classList.add('loaded');
-        padHint.textContent = file.name + ' carregado';
-      } catch (err) { padHint.textContent = 'Arquivo de áudio inválido'; console.error(err); }
-      input.value = '';
-    });
-    pad.addEventListener('pointerdown', function () {
-      ensureAudio().then(function () { playPad(pad.dataset.id); }).catch(reportAudioError);
-      pad.classList.remove('trigger'); void pad.offsetWidth; pad.classList.add('trigger');
-      padHint.textContent = pad.querySelector('.name').textContent;
+    padById[pad.dataset.id] = pad;
+    var nameEl = pad.querySelector('.name');
+    padLabels[pad.dataset.id] = nameEl ? nameEl.textContent.trim() : pad.dataset.id;
+  });
+
+  function flashPad(pad) {
+    pad.classList.remove('trigger');
+    void pad.offsetWidth;
+    pad.classList.add('trigger');
+  }
+
+  /** Normaliza o sample para não estourar (pico medido uma única vez). */
+  function sampleGain(buffer) {
+    if (buffer.__peak === undefined) {
+      var data = buffer.getChannelData(0), peak = 0;
+      var step = Math.max(1, Math.floor(data.length / 20000));
+      for (var i = 0; i < data.length; i += step) {
+        var a = Math.abs(data[i]);
+        if (a > peak) peak = a;
+      }
+      buffer.__peak = peak;
+    }
+    return buffer.__peak > 0.95 ? Math.min(1, 0.95 / buffer.__peak) : 1;
+  }
+
+  function playSample(buffer) {
+    var v = createVoice(buffer.duration + 0.25);
+    var src = v.add(audioCtx.createBufferSource());
+    var g = v.add(audioCtx.createGain());
+    src.buffer = buffer;
+    g.gain.value = sampleGain(buffer);
+    src.connect(g);
+    g.connect(fxBus);
+    src.start(now());
+  }
+
+  function triggerPad(pad) {
+    var id = pad.dataset.id;
+    flashPad(pad);
+    var label = padLabels[id] || id;
+
+    ensureAudio().then(function () {
+      return flushPendingSamples();
+    }).then(function () {
+      var sample = customSamples.get(id);
+      if (sample) {
+        playSample(sample);
+        padHint.textContent = label + ' · sample próprio';
+        return;
+      }
+      var synth = SYNTHS[id];
+      if (synth) {
+        synth();
+        padHint.textContent = label + ' · síntese';
+      }
+    }).catch(reportAudioError);
+  }
+
+  var padEvent = window.PointerEvent ? 'pointerdown' : 'touchstart';
+  pads.forEach(function (pad) {
+    pad.addEventListener(padEvent, function (event) {
+      // o 📁 tem prioridade: nunca dispara o som do pad por engano
+      var t = event.target;
+      while (t && t !== pad) {
+        if (t.classList && t.classList.contains('import-file')) return;
+        t = t.parentNode;
+      }
+      if (!window.PointerEvent) event.preventDefault();
+      triggerPad(pad);
     });
     pad.addEventListener('animationend', function () { pad.classList.remove('trigger'); });
   });
 
-  /* ---------- 6. STOP ALL ---------- */
-  var btnStop = document.getElementById('panicBtn');
+  /* ============ 8. SAMPLES PRÓPRIOS + PERSISTÊNCIA (IndexedDB) ========= */
+
+  var DB_NAME = 'worship-stage-fx';
+  var DB_STORE = 'samples';
+  var DB_VERSION = 1;
+
+  function idbOpen() {
+    return new Promise(function (resolve, reject) {
+      if (!window.indexedDB) { reject(new Error('IndexedDB indisponível')); return; }
+      var req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = function () {
+        var db = req.result;
+        if (!db.objectStoreNames.contains(DB_STORE)) db.createObjectStore(DB_STORE, { keyPath: 'id' });
+      };
+      req.onsuccess = function () { resolve(req.result); };
+      req.onerror = function () { reject(req.error || new Error('Falha no IndexedDB')); };
+    });
+  }
+
+  function idbAll() {
+    return idbOpen().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction(DB_STORE, 'readonly');
+        var rq = tx.objectStore(DB_STORE).getAll();
+        rq.onsuccess = function () { resolve(rq.result || []); };
+        rq.onerror = function () { reject(rq.error); };
+      }).then(function (rows) { try { db.close(); } catch (e) {} return rows; });
+    });
+  }
+
+  function idbPut(record) {
+    return idbOpen().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction(DB_STORE, 'readwrite');
+        tx.objectStore(DB_STORE).put(record);
+        tx.oncomplete = function () { resolve(true); };
+        tx.onerror = function () { reject(tx.error); };
+      }).then(function (r) { try { db.close(); } catch (e) {} return r; });
+    });
+  }
+
+  function idbDelete(id) {
+    return idbOpen().then(function (db) {
+      return new Promise(function (resolve, reject) {
+        var tx = db.transaction(DB_STORE, 'readwrite');
+        tx.objectStore(DB_STORE).delete(id);
+        tx.oncomplete = function () { resolve(true); };
+        tx.onerror = function () { reject(tx.error); };
+      }).then(function (r) { try { db.close(); } catch (e) {} return r; });
+    });
+  }
+
+  /** Decodifica os samples guardados (roda no primeiro gesto/áudio pronto). */
+  var flushing = null;
+  function flushPendingSamples() {
+    if (flushing) return flushing;
+    if (!pendingSamples.size) return Promise.resolve();
+    var jobs = [];
+    Array.from(pendingSamples.keys()).forEach(function (id) {
+      var row = pendingSamples.get(id);
+      if (!row || !row.data) { pendingSamples.delete(id); return; }
+      jobs.push(new Promise(function (resolve) {
+        var done = function (buffer) {
+          if (buffer) { customSamples.set(id, buffer); pendingSamples.delete(id); }
+          resolve();
+        };
+        try {
+          audioCtx.decodeAudioData(row.data.slice(0), done, function () { resolve(); });
+        } catch (e) { resolve(); }
+      }));
+    });
+    flushing = Promise.all(jobs).then(function () {
+      flushing = null;
+      updateSampleStatus();
+    });
+    return flushing;
+  }
+
+  /* ------- Restauração dos samples salvos no aparelho (offline) ------- */
+  function restoreSamples() {
+    idbAll().then(function (rows) {
+      rows.forEach(function (row) {
+        if (!row || !row.data) return;
+        pendingSamples.set(row.id, row);
+        var pad = padById[row.id];
+        if (pad) {
+          pad.classList.add('loaded');
+          pad.dataset.sample = row.name || 'sample';
+        }
+      });
+      updateSampleStatus();
+      if (rows.length) {
+        toast(rows.length + ' sample(s) próprio(s) restaurado(s) do aparelho', 'green');
+      }
+    }).catch(function (err) {
+      console.warn('IndexedDB indisponível:', err);
+    });
+  }
+
+  function updateSampleStatus() {
+    var text = $('sampleText');
+    if (!text) return;
+    var total = customSamples.size + pendingSamples.size;
+    var el = $('sampleStatus');
+    if (!total) {
+      text.textContent = 'Nenhum sample próprio importado ainda — toque em 📁 em qualquer pad';
+      if (el) el.classList.remove('ok');
+      return;
+    }
+    var bytes = 0;
+    pendingSamples.forEach(function (r) { bytes += (r.data ? r.data.byteLength : 0); });
+    var size = bytes > 1048576 ? (bytes / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(bytes / 1024)) + ' KB';
+    text.textContent = total + ' sample(s) salvos no aparelho' + (bytes ? ' · ' + size : '') + ' · funcionam offline';
+    if (el) el.classList.add('ok');
+  }
+
+  /* --------------------- Importar arquivo no pad --------------------- */
+  function setupImport(pad) {
+    var id = pad.dataset.id;
+    var label = pad.querySelector('.import-file');
+    var input = label ? label.querySelector('input') : null;
+    if (!input) return;
+
+    ['pointerdown', 'click'].forEach(function (evt) {
+      label.addEventListener(evt, function (e) { e.stopPropagation(); });
+    });
+
+    input.addEventListener('change', function (event) {
+      var file = event.target.files && event.target.files[0];
+      input.value = '';
+      if (!file) return;
+
+      ensureAudio().then(function () { return file.arrayBuffer(); }).then(function (raw) {
+        return new Promise(function (resolve, reject) {
+          audioCtx.decodeAudioData(raw.slice(0), function (buffer) {
+            resolve({ raw: raw, buffer: buffer });
+          }, function () { reject(new Error('Áudio inválido')); });
+        });
+      }).then(function (res) {
+        customSamples.set(id, res.buffer);
+        pendingSamples.delete(id);
+        pad.classList.add('loaded');
+        pad.dataset.sample = file.name;
+        return idbPut({
+          id: id,
+          name: file.name,
+          type: file.type || 'audio/*',
+          size: file.size,
+          updated: Date.now(),
+          data: res.raw
+        });
+      }).then(function () {
+        updateSampleStatus();
+        toast('"' + file.name + '" no pad ' + (padLabels[id] || id) + ' · salvo offline', 'green');
+      }).catch(function (err) {
+        console.error(err);
+        toast('Não foi possível ler esse áudio (' + file.name + ')', 'warn');
+      });
+    });
+
+    /* Segurar o 📁 remove o sample e volta para a síntese */
+    var holdTimer = null;
+    var startHold = function () {
+      holdTimer = setTimeout(function () {
+        holdTimer = null;
+        removeSample(pad);
+      }, 700);
+    };
+    var cancelHold = function () { if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; } };
+    label.addEventListener('pointerdown', startHold);
+    label.addEventListener('pointerup', cancelHold);
+    label.addEventListener('pointerleave', cancelHold);
+    label.addEventListener('pointercancel', cancelHold);
+    label.addEventListener('contextmenu', function (e) { e.preventDefault(); cancelHold(); });
+  }
+
+  function removeSample(pad) {
+    var id = pad.dataset.id;
+    if (!customSamples.has(id) && !pendingSamples.has(id)) {
+      pad.classList.remove('loaded');
+      return;
+    }
+    customSamples.delete(id);
+    pendingSamples.delete(id);
+    delete pad.dataset.sample;
+    pad.classList.remove('loaded');
+    idbDelete(id).catch(function () {});
+    updateSampleStatus();
+    toast('Pad ' + (padLabels[id] || id) + ' voltou para a síntese', 'warn');
+  }
+
+  pads.forEach(setupImport);
+
+  /* ======================= 9. STOP ALL / EXTRAS ======================== */
+
+  var btnStop = $('panicBtn');
   function stopAll() {
     ++actionVersion;
     if (masterGain) {
-      masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
-      masterGain.gain.setValueAtTime(Number(vol.value) / 100, audioCtx.currentTime);
+      masterGain.gain.cancelScheduledValues(now());
+      masterGain.gain.setValueAtTime(Number(vol.value) / 100, now());
     }
     voices.forEach(function (voice) { voice.stopImmediately(); });
-    activePad = null;
+    if (padEngine) padEngine.kill();
     activeNote = null;
+    glideFrom = null;
+    if (glideTimer) { clearTimeout(glideTimer); glideTimer = null; }
     updateToneUI();
     pads.forEach(function (p) { p.classList.remove('trigger'); });
     chips.forEach(function (chip) { chip.classList.remove('active'); });
@@ -872,8 +1860,8 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
   btnStop.addEventListener('click', stopAll);
   window.addEventListener('pagehide', stopAll);
 
-  /* ---------- 7. WakeLock (placeholder) ---------- */
-  var btnWake = document.getElementById('btnWake');
+  /* ---------- WakeLock ---------- */
+  var btnWake = $('btnWake');
   var wakeLock = null;
 
   btnWake.addEventListener('click', async function () {
@@ -897,22 +1885,20 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
     }
   });
 
-  /* ---------- 8. Status MIDI (placeholder) ---------- */
-  var badge = document.getElementById('midiBadge');
-  var midiText = document.getElementById('midiText');
+  /* ---------- Status MIDI (placeholder) ---------- */
+  var badge = $('midiBadge');
+  var midiText = $('midiText');
   function setMidi(ok) {
     badge.classList.toggle('connected', ok);
     midiText.textContent = ok ? 'MIDI: Conectado' : 'MIDI: Desconectado';
   }
   setMidi(false);
-  // TODO Fase 2: navigator.requestMIDIAccess().then(...)
   window.__worshipSetMidi = setMidi;
 
-  /* ---------- 9. Visualizador real: analyser mede o master em paralelo à saída ---------- */
-  var canvas = document.getElementById('viz');
+  /* ---------- Visualizador ---------- */
+  var canvas = $('viz');
   var drawing = canvas.getContext('2d');
-  var W = 0, H = 45;
-  var gradient;
+  var W = 0, H = 45, gradient = null;
 
   function resize() {
     if (!drawing) return;
@@ -929,10 +1915,11 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
   window.addEventListener('resize', resize);
   resize();
 
-  function draw() {
+  function draw(ts) {
     if (!drawing) return;
     drawing.clearRect(0, 0, W, H);
-    if (analyser && audioCtx.state === 'running' && voices.size > 0) {
+    var sounding = voices.size > 0 || (padEngine && padEngine.isSounding());
+    if (analyser && audioCtx.state === 'running' && sounding) {
       analyser.getByteFrequencyData(frequencyData);
       var bw = W / frequencyData.length;
       drawing.fillStyle = gradient;
@@ -943,10 +1930,410 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
         drawing.fillRect(i * bw + bw * 0.18, H - h, Math.max(1, bw * 0.64), h);
       }
       drawing.globalAlpha = 1;
+    } else {
+      // linha de repouso: respiração suave do pad (indica que está vivo)
+      var t = (ts || 0) / 1000;
+      drawing.beginPath();
+      for (var x = 0; x <= W; x += 3) {
+        var y = H / 2 + Math.sin(x * 0.02 + t * 0.7) * 1.6;
+        if (x === 0) drawing.moveTo(x, y); else drawing.lineTo(x, y);
+      }
+      drawing.strokeStyle = 'rgba(99,102,241,.35)';
+      drawing.lineWidth = 1.4;
+      drawing.stroke();
     }
     requestAnimationFrame(draw);
   }
   requestAnimationFrame(draw);
+
+  /* ======================= 10. TOASTS ================================= */
+
+  var toastWrap = $('toastWrap');
+  function toast(message, kind) {
+    if (!toastWrap) return;
+    var el = document.createElement('div');
+    el.className = 'toast' + (kind ? ' ' + kind : '');
+    el.textContent = message;
+    toastWrap.appendChild(el);
+    while (toastWrap.children.length > 3) toastWrap.removeChild(toastWrap.firstChild);
+    setTimeout(function () {
+      el.classList.add('out');
+      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 260);
+    }, 2600);
+  }
+
+  /* ========= 11. PWA: MANIFEST INLINE DINÂMICO + SERVICE WORKER ======== */
+
+  var swHint = $('swHint');
+  var pwaText = $('pwaText');
+  var pwaStatus = $('pwaStatus');
+
+  function setPwaStatus(kind, text) {
+    if (!pwaStatus || !pwaText) return;
+    pwaStatus.classList.remove('ok', 'warn');
+    if (kind) pwaStatus.classList.add(kind);
+    pwaText.textContent = text;
+    if (swHint) swHint.textContent = kind === 'ok' ? 'offline pronto' : 'offline';
+  }
+
+  function dirUrl() {
+    return location.href.replace(/[^/]*$/, '');
+  }
+
+  /** Ícone PNG gerado em canvas (usado no manifest inline). */
+  function canvasIcon(size) {
+    var c = document.createElement('canvas');
+    c.width = c.height = size;
+    var x = c.getContext('2d');
+    var bg = x.createLinearGradient(0, 0, 0, size);
+    bg.addColorStop(0, '#0a0b10');
+    bg.addColorStop(1, '#131728');
+    x.fillStyle = bg;
+    x.fillRect(0, 0, size, size);
+
+    var glow = x.createRadialGradient(size * 0.5, size * 0.42, 0, size * 0.5, size * 0.42, size * 0.75);
+    glow.addColorStop(0, 'rgba(99,102,241,.45)');
+    glow.addColorStop(1, 'rgba(99,102,241,0)');
+    x.fillStyle = glow;
+    x.fillRect(0, 0, size, size);
+
+    var inset = size * 0.145;
+    var inner = size - inset * 2;
+    var gap = inner * 0.045;
+    var cell = (inner - gap * 3) / 4;
+    for (var r = 0; r < 4; r++) {
+      for (var col = 0; col < 4; col++) {
+        var diag = (r + col) / 6;
+        var cs = x.createLinearGradient(0, inset + r * (cell + gap), 0, inset + r * (cell + gap) + cell);
+        cs.addColorStop(0, 'rgba(99,102,241,' + (0.42 + diag * 0.5) + ')');
+        cs.addColorStop(1, 'rgba(6,182,212,' + (0.22 + diag * 0.6) + ')');
+        x.fillStyle = cs;
+        if (r === 1 && col === 2) x.fillStyle = 'rgba(129,140,248,1)';
+        var px = inset + col * (cell + gap);
+        var py = inset + r * (cell + gap);
+        var rad = cell * 0.3;
+        x.beginPath();
+        if (x.roundRect) x.roundRect(px, py, cell, cell, rad);
+        else x.rect(px, py, cell, cell);
+        x.fill();
+      }
+    }
+    return c.toDataURL('image/png');
+  }
+
+  /**
+   * Manifest dinâmico inline (Data URI). É usado quando a página roda fora de
+   * http/https (ex.: aberta direto do arquivo), onde "manifest.json" não é
+   * acessível. Em servidor (GitHub Pages) o arquivo manifest.json continua
+   * sendo a fonte principal — mais confiável para o Chrome/Android instalar.
+   */
+  function buildInlineManifest() {
+    var base = dirUrl();
+    var icons = [];
+    try {
+      icons = [
+        { src: canvasIcon(192), sizes: '192x192', type: 'image/png', purpose: 'any' },
+        { src: canvasIcon(512), sizes: '512x512', type: 'image/png', purpose: 'any' }
+      ];
+    } catch (e) {}
+    icons = icons.concat([
+      { src: base + 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+      { src: base + 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+      { src: base + 'icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+    ]);
+    return {
+      id: base,
+      name: 'Worship Stage FX',
+      short_name: 'Worship FX',
+      description: 'Hollow Space Pad com Glide, 16 pads de Louvor, samples próprios e uso 100% offline.',
+      start_url: base + 'index.html',
+      scope: base,
+      display: 'standalone',
+      display_override: ['standalone', 'fullscreen'],
+      orientation: 'any',
+      background_color: '#0a0b10',
+      theme_color: '#0d0e15',
+      lang: 'pt-BR',
+      dir: 'ltr',
+      categories: ['music', 'entertainment', 'utilities'],
+      icons: icons
+    };
+  }
+
+  function injectInlineManifest() {
+    try {
+      var json = JSON.stringify(buildInlineManifest());
+      var uri = 'data:application/manifest+json;charset=utf-8,' + encodeURIComponent(json);
+      var link = document.querySelector('link[rel="manifest"]');
+      if (!link) {
+        link = document.createElement('link');
+        link.rel = 'manifest';
+        document.head.appendChild(link);
+      }
+      link.setAttribute('href', uri);
+      link.dataset.inline = 'true';
+      return true;
+    } catch (err) {
+      console.warn('Manifest inline indisponível:', err);
+      return false;
+    }
+  }
+  window.__worshipBuildManifest = buildInlineManifest;
+  window.__worshipInjectInlineManifest = injectInlineManifest;
+
+  /* ---------- Service Worker (cache offline) ---------- */
+  // Arquivos essenciais para o app abrir 100% offline no celular.
+  var PWA_ASSETS = [
+    './', './index.html', './manifest.json',
+    './icon-192.png', './icon-512.png', './icon-maskable-512.png',
+    './apple-touch-icon-180.png'
+  ];
+  var SW_CACHE = 'worship-stage-fx-v3';
+
+  // sw.js é o service worker oficial (arquivo na raiz). Esta é a cópia inline,
+  // usada como rede de segurança quando a página não consegue acessar sw.js.
+  var SW_SOURCE = [
+    "'use strict';",
+    "var CACHE='" + SW_CACHE + "';",
+    "var ASSETS=" + JSON.stringify(PWA_ASSETS) + ";",
+    "function abs(u){ return new URL(u, self.registration.scope).href; }",
+    "function precache(){",
+    "  return caches.open(CACHE).then(function(c){",
+    "    return Promise.all(ASSETS.map(function(u){",
+    "      return c.add(new Request(abs(u), {cache:'reload'})).catch(function(){});",
+    "    }));",
+    "  });",
+    "}",
+    "self.addEventListener('install', function(e){",
+    "  e.waitUntil(precache().then(function(){ return self.skipWaiting(); }));",
+    "});",
+    "self.addEventListener('activate', function(e){",
+    "  e.waitUntil(caches.keys().then(function(keys){",
+    "    return Promise.all(keys.map(function(k){ return k === CACHE ? null : caches.delete(k); }));",
+    "  }).then(function(){ return self.clients.claim(); }));",
+    "});",
+    "self.addEventListener('message', function(e){",
+    "  if (e.data && e.data.type === 'CACHE_NOW') e.waitUntil(precache());",
+    "  if (e.data && e.data.type === 'SKIP_WAITING') self.skipWaiting();",
+    "});",
+    "function stash(req, res){",
+    "  if (res && res.ok && res.type === 'basic'){",
+    "    var copy = res.clone();",
+    "    caches.open(CACHE).then(function(c){ c.put(req, copy); });",
+    "  }",
+    "  return res;",
+    "}",
+    "self.addEventListener('fetch', function(e){",
+    "  var req = e.request;",
+    "  if (req.method !== 'GET') return;",
+    "  if (req.mode === 'navigate'){",
+    "    e.respondWith(",
+    "      fetch(req).then(function(r){ stash(new Request(abs('./index.html')), r.clone()); return r; })",
+    "      .catch(function(){ return caches.match(abs('./index.html')).then(function(r){ return r || caches.match('./'); }); })",
+    "    );",
+    "    return;",
+    "  }",
+    "  if (new URL(req.url).origin !== self.location.origin) return;",
+    "  e.respondWith(caches.match(req).then(function(cached){",
+    "    var net = fetch(req).then(function(r){ return stash(req, r.clone()); }).catch(function(){ return cached; });",
+    "    return cached || net;",
+    "  }));",
+    "});"
+  ].join('\n');
+
+  function canUseServiceWorker() {
+    return ('serviceWorker' in navigator) &&
+      (location.protocol === 'https:' || location.hostname === 'localhost' ||
+       location.hostname === '127.0.0.1' || location.protocol === 'http:');
+  }
+
+  function registerServiceWorker() {
+    if (!('serviceWorker' in navigator)) {
+      setPwaStatus('warn', 'Este navegador não suporta cache offline (Service Worker).');
+      return;
+    }
+    if (!canUseServiceWorker()) {
+      setPwaStatus('warn', 'Abra por https (GitHub Pages) ou localhost para ativar o modo offline.');
+      return;
+    }
+
+    navigator.serviceWorker.register('sw.js', { scope: './' }).then(function () {
+      setPwaStatus('ok', 'Offline pronto: página, ícones e manifest guardados no aparelho.');
+    }).catch(function (err) {
+      console.warn('sw.js indisponível, usando service worker inline:', err);
+      // Rede de segurança: mesmo código inline (blob), caso sw.js não exista.
+      var url = URL.createObjectURL(new Blob([SW_SOURCE], { type: 'text/javascript' }));
+      return navigator.serviceWorker.register(url, { scope: './' }).then(function () {
+        setPwaStatus('ok', 'Offline pronto (service worker inline).');
+      }).catch(function (err2) {
+        console.warn('Service worker inline indisponível:', err2);
+        setPwaStatus('warn', 'Cache offline indisponível neste contexto.');
+      });
+    });
+  }
+
+  /* ---------- Botões de instalação / cache ---------- */
+  var installBtn = $('installBtn');
+  var cacheBtn = $('cacheBtn');
+  var banner = $('installBanner');
+  var deferredPrompt = null;
+
+  function mq(query) {
+    try { return !!(window.matchMedia && window.matchMedia(query).matches); } catch (e) { return false; }
+  }
+
+  function isStandalone() {
+    return mq('(display-mode: standalone)') ||
+           mq('(display-mode: fullscreen)') ||
+           mq('(display-mode: minimal-ui)') ||
+           window.navigator.standalone === true;
+  }
+
+  function showInstalled() {
+    if (!installBtn) return;
+    installBtn.classList.remove('ready');
+    installBtn.classList.add('done');
+    installBtn.textContent = '✅ APP INSTALADO';
+    if (banner) banner.classList.remove('show');
+    document.body.classList.remove('has-banner');
+  }
+
+  window.addEventListener('beforeinstallprompt', function (e) {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (installBtn) {
+      installBtn.classList.add('ready');
+      installBtn.textContent = '📲 INSTALAR APP';
+    }
+    if (banner) banner.classList.add('show');
+    document.body.classList.add('has-banner');
+  });
+
+  window.addEventListener('appinstalled', function () {
+    deferredPrompt = null;
+    showInstalled();
+    toast('App instalado! Abra pelo ícone na tela inicial.', 'green');
+  });
+
+  async function doInstall() {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      try {
+        var choice = await deferredPrompt.userChoice;
+        deferredPrompt = null;
+        if (choice && choice.outcome === 'accepted') {
+          showInstalled();
+          toast('Instalando Worship Stage FX…', 'green');
+        } else {
+          if (banner) banner.classList.remove('show');
+          document.body.classList.remove('has-banner');
+        }
+      } catch (err) {
+        console.warn(err);
+      }
+      return;
+    }
+    if (isStandalone()) { showInstalled(); return; }
+    // Sem prompt automático (Android: menu ⋮ / iPhone: Compartilhar)
+    var android = /android/i.test(navigator.userAgent);
+    toast(android
+      ? 'Toque em ⋮ (menu do Chrome) → "Instalar app" / "Adicionar à tela inicial"'
+      : 'iPhone: Compartilhar → "Adicionar à Tela de Início"', 'warn');
+  }
+
+  if (installBtn) installBtn.addEventListener('click', doInstall);
+  if (cacheBtn) {
+    cacheBtn.addEventListener('click', function () {
+      if (!('caches' in window) || !canUseServiceWorker()) {
+        toast('Salvar offline funciona com o app publicado em https.', 'warn');
+        return;
+      }
+      cacheBtn.disabled = true;
+      cacheBtn.textContent = '⏳ SALVANDO…';
+      caches.open(SW_CACHE).then(function (c) {
+        return Promise.all(PWA_ASSETS.map(function (u) {
+          return c.add(new Request(new URL(u, dirUrl()).href, { cache: 'reload' }))
+                  .catch(function () { return null; });
+        }));
+      }).then(function (results) {
+        return caches.keys().then(function (keys) {
+          return Promise.all(keys.map(function (k) { return k === SW_CACHE ? null : caches.delete(k); }));
+        }).then(function () { return results; });
+      }).then(function (results) {
+        var saved = results.filter(function (r) { return r !== null; }).length;
+        if (navigator.serviceWorker && navigator.serviceWorker.controller) {
+          navigator.serviceWorker.controller.postMessage({ type: 'CACHE_NOW' });
+        }
+        cacheBtn.disabled = false;
+        cacheBtn.textContent = '⬇️ SALVAR OFFLINE';
+        if (saved) {
+          setPwaStatus('ok', 'Offline salvo (' + saved + '/' + PWA_ASSETS.length + ' arquivos). Pode usar sem internet.');
+          toast('Offline atualizado ✓', 'green');
+        } else {
+          toast('Não foi possível salvar o cache agora.', 'warn');
+        }
+      }).catch(function (err) {
+        console.warn(err);
+        cacheBtn.disabled = false;
+        cacheBtn.textContent = '⬇️ SALVAR OFFLINE';
+        toast('Não foi possível salvar o cache agora.', 'warn');
+      });
+    });
+  }
+
+  if (banner) {
+    var bannerGo = $('installBannerGo');
+    var bannerX = $('installBannerX');
+    if (bannerGo) bannerGo.addEventListener('click', doInstall);
+    if (bannerX) bannerX.addEventListener('click', function () {
+      banner.classList.remove('show');
+      document.body.classList.remove('has-banner');
+    });
+  }
+
+  /* ---------- Inicialização PWA ---------- */
+  function initPWA() {
+    if (!canUseServiceWorker()) {
+      // Aberto direto do arquivo (file://): o manifest.json não é acessível,
+      // então usamos o manifest inline (Data URI) para manter a identidade do app.
+      injectInlineManifest();
+      setPwaStatus('warn', 'Aberto como arquivo local: publicando em https (GitHub Pages) a instalação e o modo offline ficam completos.');
+      return;
+    }
+    registerServiceWorker();
+    if (isStandalone()) showInstalled();
+
+    // Fallback: se o manifest.json não estiver acessível, injeta o manifest
+    // inline (Data URI) para o app continuar instalável.
+    try {
+      if (typeof fetch === 'function') {
+        fetch('manifest.json', { method: 'HEAD' }).then(function (res) {
+          if (!res.ok) injectInlineManifest();
+        }).catch(function () {
+          injectInlineManifest();
+        });
+      }
+    } catch (err) {
+      injectInlineManifest();
+    }
+  }
+
+  /* ======================= 12. INICIALIZAÇÃO ========================== */
+
+  restoreSamples();
+  updateSampleStatus();
+  initPWA();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      setPwaStatus('ok', 'App atualizado e disponível offline.');
+    });
+  }
+
+  window.addEventListener('online', function () { padHint.textContent = 'Conectado'; });
+  window.addEventListener('offline', function () {
+    toast('Sem internet — o app continua funcionando', 'warn');
+  });
 })();
 </script>
 </body>
