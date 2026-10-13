@@ -88,9 +88,18 @@ await tick(60);
 const checks = [];
 const check = (name, cond, extra = '') => { checks.push({ name, ok: !!cond, extra }); };
 
-check('16 pads renderizados', doc.querySelectorAll('.pad').length === 16);
+check('16 pads FX renderizados', doc.querySelectorAll('#padGrid .pad').length === 16);
+check('4 pads favoritos', doc.querySelectorAll('#favGrid .pad').length === 4);
+check('favoritos com destaque âmbar', [...doc.querySelectorAll('#favGrid .pad')].every((p) => (p.getAttribute('style') || '').includes('#f59e0b')));
+check('seção de cenas removida', !doc.querySelector('.scenes') && !doc.querySelector('.chip') && !doc.getElementById('sceneBar'));
+check('seção Favoritos (Acesso Rápido)', /Favoritos \(Acesso Rápido\)/.test(doc.body.textContent));
 check('12 teclas cromáticas', doc.querySelectorAll('.tone').length === 12);
-check('cada pad tem botão 📁 + input audio/*', [...doc.querySelectorAll('.pad')].every((p) => {
+check('oitava média C=261.63 … B=493.88', /'C': 261\.63/.test(html) && /'B': 493\.88/.test(html) && /frequency\.value = 220/.test(html));
+check('cada tecla do colchão tem botão 📁 + input audio/*', [...doc.querySelectorAll('.tone')].every((p) => {
+  const i = p.querySelector('.import-file input');
+  return i && i.getAttribute('accept') === 'audio/*' && p.dataset.id && p.dataset.id.startsWith('tone-');
+}));
+check('cada pad (FX + favoritos) tem botão 📁 + input audio/*', [...doc.querySelectorAll('.pad')].every((p) => {
   const i = p.querySelector('.import-file input');
   return i && i.getAttribute('accept') === 'audio/*';
 }));
@@ -121,8 +130,8 @@ check('glide NÃO recriou osciladores', oscAfter === oscBefore, `antes=${oscBefo
 const engineOscs = ctxRef.nodes.filter((n) => n.kind === 'oscillator').slice(0, 5);
 const freqEvents = engineOscs.map((o) => o.frequency.events);
 const glideRamps = freqEvents.map((evs) => evs.filter((e) => e[0] === 'lin').pop());
-check('GLIDE: 3 osciladores com linearRamp até a nota nova',
-  glideRamps.length >= 3 && glideRamps.slice(0, 3).every((r) => r && [196, 98].includes(Math.round(r[1]))),
+check('GLIDE: 3 osciladores com linearRamp até a nota nova (G = 392 Hz)',
+  glideRamps.length >= 3 && glideRamps.slice(0, 3).every((r) => r && Math.round(r[1]) === 392),
   JSON.stringify(glideRamps.slice(0, 3)));
 check('GLIDE: rampa de 1.5s (now+1.5)', glideRamps.slice(0, 3).every((r) => Math.abs(r[2] - (ctxRef.currentTime + 1.5)) < 0.001));
 check('GLIDE: cancelAndHoldAtTime usado (sem estalo)',
@@ -130,16 +139,17 @@ check('GLIDE: cancelAndHoldAtTime usado (sem estalo)',
 
 const sineCount = engineOscs.filter((o) => o.type === 'sine').length;
 const triCount = engineOscs.filter((o) => o.type === 'triangle').length;
-check('2 osciladores Sine + 1 Triangle no colchão', sineCount >= 2 && triCount >= 1, `sine=${sineCount} triangle=${triCount}`);
+const sawCount = engineOscs.filter((o) => o.type === 'sawtooth').length;
+check('apenas senoides no colchão (zero triangle/saw)', sineCount >= 3 && triCount === 0 && sawCount === 0, `sine=${sineCount} triangle=${triCount} saw=${sawCount}`);
 
-const filters = ctxRef.nodes.filter((n) => n.kind === 'filter' && n.frequency.value === 320);
-check('filtro em 320Hz (lowpass + bandpass)', filters.length >= 2 && filters.some((f) => f.type === 'lowpass') && filters.some((f) => f.type === 'bandpass'), filters.map((f) => f.type).join(','));
-check('notch (som oco) presente', ctxRef.nodes.some((n) => n.kind === 'filter' && n.type === 'notch'));
+const lp220 = ctxRef.nodes.filter((n) => n.kind === 'filter' && n.type === 'lowpass' && n.frequency.value === 220);
+check('filtro lowpass muito fechado em 220Hz', lp220.length >= 1, lp220.map((f) => f.type + ':' + f.frequency.value).join(','));
+check('sem notch/bandpass no colchão (zero metálico)', !ctxRef.nodes.some((n) => n.kind === 'filter' && (n.type === 'notch' || n.type === 'bandpass')));
 
 const lfo = ctxRef.nodes.find((n) => n.kind === 'oscillator' && n.frequency.value === 0.2);
 check('LFO ultra-lento de 0.2Hz no filtro', !!lfo && lfo.started);
-const depth = ctxRef.nodes.find((n) => n.kind === 'gain' && n.gain.value === 110);
-check('profundidade do LFO (±110Hz) conectada ao filtro', !!depth && depth.outputs.some((o) => o && o.name === 'frequency'));
+const depth = ctxRef.nodes.find((n) => n.kind === 'gain' && n.gain.value === 18);
+check('profundidade do LFO (±18Hz) conectada ao filtro', !!depth && depth.outputs.some((o) => o && o.name === 'frequency'));
 
 const envGain = ctxRef.nodes.find((n) => n.kind === 'gain' && n.gain.events.some((e) => e[0] === 'lin' && Math.abs(e[1] - 0.62) < 0.001));
 const attackEv = envGain ? envGain.gain.events.filter((e) => e[0] === 'lin' && Math.abs(e[1] - 0.62) < 0.001).pop() : null;
@@ -168,7 +178,9 @@ check('release de 1.5s (fade-out ao desligar)',
   relStart && relEnd ? `hold→fim = ${(relEnd[2] - relStart[2]).toFixed(3)}s` : JSON.stringify(envGain.gain.events));
 
 /* ---- 16 pads: dispara todos ---- */
-const padIds = [...doc.querySelectorAll('.pad')].map((p) => p.dataset.id);
+const padIds = [...doc.querySelectorAll('#padGrid .pad')].map((p) => p.dataset.id);
+const favIds = [...doc.querySelectorAll('#favGrid .pad')].map((p) => p.dataset.id);
+check('ids dos 4 favoritos', favIds.join(',') === 'fav1,fav2,fav3,fav4');
 check('ids técnicos dos 16 pads', padIds.join(',') === [
   'subdrop808', 'worshipsnare', 'clapcathedral', 'snapreverb',
   'swellriser', 'reversecrash', 'whitenoisesweep', 'shakerpandeiro',
@@ -216,18 +228,43 @@ const rows = await new Promise((resolve, reject) => {
 });
 check('sample salvo no IndexedDB', rows.length === 1 && rows[0].id === 'chimescelestial' && rows[0].name === 'sino-igreja.wav' && rows[0].data.byteLength === 8);
 
+/* ---- sample em LOOP numa tecla do colchão ---- */
+const toneC = doc.querySelector('.tone[data-note="C"]');
+const toneInput = toneC.querySelector('input[type=file]');
+const toneFile = new window.File([new Uint8Array([9, 10, 11, 12])], 'colchao-c.mp3', { type: 'audio/mpeg' });
+Object.defineProperty(toneInput, 'files', { value: [toneFile], configurable: true });
+toneInput.dispatchEvent(new window.Event('change', { bubbles: true }));
+await tick(80);
+check('tecla C ficou verde após importar sample', toneC.classList.contains('loaded'));
+click(window, toneC);
+await tick(30);
+const loopSrc = [...ctxRef.nodes].reverse().find((n) => n.kind === 'bufferSource' && n.loop === true);
+check('sample do colchão toca em LOOP', !!loopSrc && loopSrc.started && loopSrc.loop === true);
+check('hint do colchão mostra sample', /Sustentando: C · sample/.test(doc.getElementById('toneHint').textContent), doc.getElementById('toneHint').textContent);
+
+/* ---- favorito: pointerdown + sample próprio ---- */
+const fav = doc.querySelector('#favGrid .pad[data-id="fav1"]');
+const favInput = fav.querySelector('input[type=file]');
+const favFile = new window.File([new Uint8Array([5, 6, 7, 8, 9])], 'impacto.wav', { type: 'audio/wav' });
+Object.defineProperty(favInput, 'files', { value: [favFile], configurable: true });
+favInput.dispatchEvent(new window.Event('change', { bubbles: true }));
+await tick(80);
+check('favorito 1 ficou verde após importar', fav.classList.contains('loaded'));
+pointer(window, fav);
+await tick(20);
+check('favorito dispara sample no pointerdown', /Favorito 1 · sample próprio/.test(doc.getElementById('padHint').textContent), doc.getElementById('padHint').textContent);
+
 /* ---- botão salvar offline ---- */
 click(window, doc.getElementById('cacheBtn'));
 await tick(40);
 const cacheNames = await caches.keys();
-check('cache offline criado pelo botão', cacheNames.includes('worship-stage-fx-v3'), cacheNames.join(','));
+check('cache offline criado pelo botão', cacheNames.includes('worship-stage-fx-v4'), cacheNames.join(','));
 check('status offline ok', /Offline salvo/.test(doc.getElementById('pwaText').textContent), doc.getElementById('pwaText').textContent);
 
 /* ---- STOP ALL ---- */
 click(window, doc.getElementById('panicBtn'));
 await tick(20);
 check('STOP ALL limpa teclas ativas', doc.querySelectorAll('.tone.active').length === 0);
-check('STOP ALL limpa cenas', doc.querySelectorAll('.chip.active').length === 0);
 
 /* ---- wake lock / midi fallback ---- */
 click(window, doc.getElementById('btnWake'));
@@ -244,7 +281,9 @@ const dom2 = makeWindow(idb, 'https://yohann123c-hash.github.io/worship-stage-fx
 await tick(120);
 const doc2 = dom2.window.document;
 check('pad volta verde após recarregar', doc2.querySelector('.pad[data-id="chimescelestial"]').classList.contains('loaded'));
-check('status diz que o sample está salvo no aparelho', /1 sample\(s\) salvos/.test(doc2.getElementById('sampleText').textContent));
+check('tecla C restaura sample após recarregar', doc2.querySelector('.tone[data-note="C"]').classList.contains('loaded'));
+check('favorito 1 restaura sample após recarregar', doc2.querySelector('.pad[data-id="fav1"]').classList.contains('loaded'));
+check('status diz que o sample está salvo no aparelho', /3 sample\(s\) salvos/.test(doc2.getElementById('sampleText').textContent), doc2.getElementById('sampleText').textContent);
 
 /* dispara o pad restaurado: precisa decodificar e tocar o sample salvo */
 pointer(dom2.window, doc2.querySelector('.tone[data-note="D"]'));
@@ -265,7 +304,7 @@ const rows2 = await new Promise((resolve) => {
     all.onsuccess = () => resolve(all.result);
   };
 });
-check('sample apagado do IndexedDB', rows2.length === 0);
+check('sample do pad apagado do IndexedDB (tecla e favorito permanecem)', rows2.length === 2 && rows2.every((r) => r.id !== 'chimescelestial'));
 
 /* ====== CENÁRIO 2b: manifest.json ausente em https (fallback inline) ===== */
 const dom2b = makeWindow(new IDBFactory(), 'https://exemplo.com/app/index.html', makeFakeCaches(), { manifestOk: false });

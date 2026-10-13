@@ -6,7 +6,7 @@
    ========================================================================== */
 'use strict';
 
-var CACHE = 'worship-stage-fx-v3';
+var CACHE = 'worship-stage-fx-v4';
 var ASSETS = [
   './',
   './index.html',
