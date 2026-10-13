@@ -2,7 +2,7 @@
   "id": "./",
   "name": "Worship Stage FX",
   "short_name": "Worship FX",
-  "description": "Hollow Space Pad com Glide, 16 pads de Louvor, samples próprios e uso 100% offline.",
+  "description": "Hollow Sine Pad com Glide, 16 pads de Louvor, 4 favoritos, samples próprios e uso 100% offline.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

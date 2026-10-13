@@ -12,15 +12,15 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Worship FX">
 <meta name="application-name" content="Worship Stage FX">
-<meta name="description" content="Hollow Space Pad com Glide, 16 pads de Louvor, samples próprios e funcionamento 100% offline.">
+<meta name="description" content="Hollow Sine Pad (C3–B3, LP 220Hz), 16 pads de Louvor, 4 favoritos, samples próprios e funcionamento 100% offline.">
 <link rel="manifest" id="appManifest" href="manifest.json">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon-180.png">
 
-<title>Worship Stage FX · Hollow Pad + 16 FX</title>
+<title>Worship Stage FX · Hollow Sine Pad + 16 FX</title>
 <style>
 /* ============================================================
-   WORSHIP STAGE FX — FASE 3 (Hollow Space Pad + 16 FX + PWA)
+   WORSHIP STAGE FX — FASE 4 (Hollow Sine Pad + 16 FX + 4 Favoritos + PWA)
    Mantém a interface e o estilo da Fase 1 (tema Dark Worship)
    ============================================================ */
 
@@ -314,6 +314,17 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
   box-shadow:0 0 0 1px rgba(6,182,212,.45), 0 0 16px rgba(6,182,212,.25);
 }
 .tone.gliding .sub{ color:rgba(223,251,255,.8); }
+/* Sample próprio carregado na tecla do colchão (borda verde) */
+.tone.loaded{
+  box-shadow:0 0 0 1px rgba(16,185,129,.40), 0 0 14px rgba(16,185,129,.18);
+}
+.tone.loaded:not(.active):not(.gliding){
+  border-color:#10b981;
+  background:linear-gradient(180deg, rgba(16,185,129,.12), #10121b 70%);
+  color:#d1fae5;
+}
+.tone.loaded.active,
+.tone.loaded.gliding{ border-color:#10b981; }
 @keyframes tonePop{ 0%{transform:scale(.9)} 60%{transform:scale(1.06)} 100%{transform:scale(1)} }
 
 .pad-note{
@@ -326,45 +337,27 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
 .pad-note b{ color:var(--text-dim); font-weight:700; }
 
 /* ============================================================
-   CENAS DE CULTO — chips roláveis
+   FAVORITOS (ACESSO RÁPIDO) — 4 pads dourados/âmbar
    ============================================================ */
-.scenes{
-  display:flex; gap:9px;
-  overflow-x:auto; overflow-y:hidden;
-  padding:4px 2px 10px;
-  scroll-snap-type:x proximity;
-  -webkit-overflow-scrolling:touch;
-  scrollbar-width:none;
+.favs{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
 }
-.scenes::-webkit-scrollbar{ display:none; }
-
-.chip{
-  flex:0 0 auto;
-  display:flex; align-items:center; gap:8px;
-  padding:11px 16px;
-  border-radius:999px;
-  border:1px solid var(--border);
-  background:var(--card-2);
-  color:var(--text-dim);
-  font-size:11.5px; font-weight:700; letter-spacing:.6px;
-  white-space:nowrap;
-  scroll-snap-align:start;
-  transition:transform .12s ease, color .18s ease, border-color .18s ease, box-shadow .2s ease, background .2s ease;
+.favs .pad{
+  min-height:88px;
+  border-color:rgba(245,158,11,.42);
+  background:linear-gradient(180deg, rgba(245,158,11,.16), #0f111a 62%);
+  box-shadow:0 0 18px rgba(245,158,11,.08);
 }
-.chip .num{
-  font-size:10px; font-weight:800; color:var(--text-faint);
-  padding:2px 6px; border-radius:6px;
-  background:rgba(255,255,255,.05);
+.favs .pad .name{ color:#fbbf24; }
+.favs .pad:hover{
+  border-color:#f59e0b;
+  box-shadow:0 10px 24px rgba(0,0,0,.5), 0 0 22px rgba(245,158,11,.32);
 }
-.chip:hover{ color:var(--text); border-color:rgba(6,182,212,.5); transform:translateY(-2px); }
-.chip:active{ transform:scale(.96); }
-.chip.active{
-  color:#eaffff;
-  border-color:var(--cyan);
-  background:linear-gradient(180deg, rgba(6,182,212,.22), rgba(6,182,212,.08));
-  box-shadow:0 0 0 1px var(--cyan), 0 0 20px rgba(6,182,212,.32);
+.favs .pad.loaded{
+  border-color:#10b981; border-left-color:#10b981;
 }
-.chip.active .num{ color:#0a2b31; background:var(--cyan); }
 
 /* ============================================================
    PADS DE DISPARO — 4 x 4
@@ -426,8 +419,8 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
 }
 .pad.loaded .tag{ color:#10b981; opacity:.9; }
 
-/* Botão discreto 📁 no canto superior direito */
-.pad .import-file{
+/* Botão discreto 📁 no canto superior direito (pads FX, favoritos e teclas) */
+.pad .import-file, .tone .import-file{
   position:absolute; right:5px; top:4px; z-index:3;
   width:26px; height:26px;
   display:grid; place-items:center;
@@ -439,10 +432,11 @@ input[type=range]{ -webkit-appearance:none; appearance:none; background:transpar
   border:1px solid rgba(255,255,255,.10);
   transition:opacity .18s ease, background .18s ease, border-color .18s ease, transform .12s ease;
 }
-.pad .import-file input{ display:none; }
-.pad .import-file:hover{ opacity:1; background:rgba(99,102,241,.20); border-color:rgba(99,102,241,.6); }
-.pad .import-file:active{ transform:scale(.9); }
-.pad.loaded .import-file{ opacity:.95; color:#10b981; border-color:rgba(16,185,129,.55); background:rgba(16,185,129,.12); }
+.pad .import-file input, .tone .import-file input{ display:none; }
+.pad .import-file:hover, .tone .import-file:hover{ opacity:1; background:rgba(99,102,241,.20); border-color:rgba(99,102,241,.6); }
+.pad .import-file:active, .tone .import-file:active{ transform:scale(.9); }
+.pad.loaded .import-file, .tone.loaded .import-file{ opacity:.95; color:#10b981; border-color:rgba(16,185,129,.55); background:rgba(16,185,129,.12); }
+.tone .import-file{ width:22px; height:22px; font-size:11px; right:3px; top:3px; }
 
 @keyframes padHit{
   0%{ transform:scale(.9); filter:brightness(1.9); }
@@ -610,7 +604,7 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
 <header class="header">
   <div class="brand">
     <h1>🎹 WORSHIP STAGE FX</h1>
-    <span id="brandSub">Hollow Space Pad · 16 FX · Offline</span>
+    <span id="brandSub">Hollow Sine Pad · 16 FX · 4 Favoritos · Offline</span>
   </div>
   <div class="header-right">
     <div class="badge" id="midiBadge">
@@ -659,39 +653,75 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
 
     <div class="card">
       <div class="tone-grid" id="toneGrid">
-        <button class="tone" data-note="C">C<span class="sub">DÓ</span></button>
-        <button class="tone" data-note="C#">C#<span class="sub">DÓ#</span></button>
-        <button class="tone" data-note="D">D<span class="sub">RÉ</span></button>
-        <button class="tone" data-note="D#">D#<span class="sub">RÉ#</span></button>
-        <button class="tone" data-note="E">E<span class="sub">MI</span></button>
-        <button class="tone" data-note="F">F<span class="sub">FÁ</span></button>
-        <button class="tone" data-note="F#">F#<span class="sub">FÁ#</span></button>
-        <button class="tone" data-note="G">G<span class="sub">SOL</span></button>
-        <button class="tone" data-note="G#">G#<span class="sub">SOL#</span></button>
-        <button class="tone" data-note="A">A<span class="sub">LÁ</span></button>
-        <button class="tone" data-note="A#">A#<span class="sub">LÁ#</span></button>
-        <button class="tone" data-note="B">B<span class="sub">SI</span></button>
+        <button class="tone" data-note="C" data-id="tone-C">C<span class="sub">DÓ</span>
+          <label class="import-file" title="Importar áudio para este tom (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="tone-C" aria-label="Importar áudio para C"></label>
+        </button>
+        <button class="tone" data-note="C#" data-id="tone-C#">C#<span class="sub">DÓ#</span>
+          <label class="import-file" title="Importar áudio para este tom (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="tone-C#" aria-label="Importar áudio para C#"></label>
+        </button>
+        <button class="tone" data-note="D" data-id="tone-D">D<span class="sub">RÉ</span>
+          <label class="import-file" title="Importar áudio para este tom (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="tone-D" aria-label="Importar áudio para D"></label>
+        </button>
+        <button class="tone" data-note="D#" data-id="tone-D#">D#<span class="sub">RÉ#</span>
+          <label class="import-file" title="Importar áudio para este tom (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="tone-D#" aria-label="Importar áudio para D#"></label>
+        </button>
+        <button class="tone" data-note="E" data-id="tone-E">E<span class="sub">MI</span>
+          <label class="import-file" title="Importar áudio para este tom (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="tone-E" aria-label="Importar áudio para E"></label>
+        </button>
+        <button class="tone" data-note="F" data-id="tone-F">F<span class="sub">FÁ</span>
+          <label class="import-file" title="Importar áudio para este tom (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="tone-F" aria-label="Importar áudio para F"></label>
+        </button>
+        <button class="tone" data-note="F#" data-id="tone-F#">F#<span class="sub">FÁ#</span>
+          <label class="import-file" title="Importar áudio para este tom (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="tone-F#" aria-label="Importar áudio para F#"></label>
+        </button>
+        <button class="tone" data-note="G" data-id="tone-G">G<span class="sub">SOL</span>
+          <label class="import-file" title="Importar áudio para este tom (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="tone-G" aria-label="Importar áudio para G"></label>
+        </button>
+        <button class="tone" data-note="G#" data-id="tone-G#">G#<span class="sub">SOL#</span>
+          <label class="import-file" title="Importar áudio para este tom (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="tone-G#" aria-label="Importar áudio para G#"></label>
+        </button>
+        <button class="tone" data-note="A" data-id="tone-A">A<span class="sub">LÁ</span>
+          <label class="import-file" title="Importar áudio para este tom (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="tone-A" aria-label="Importar áudio para A"></label>
+        </button>
+        <button class="tone" data-note="A#" data-id="tone-A#">A#<span class="sub">LÁ#</span>
+          <label class="import-file" title="Importar áudio para este tom (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="tone-A#" aria-label="Importar áudio para A#"></label>
+        </button>
+        <button class="tone" data-note="B" data-id="tone-B">B<span class="sub">SI</span>
+          <label class="import-file" title="Importar áudio para este tom (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="tone-B" aria-label="Importar áudio para B"></label>
+        </button>
       </div>
 
       <div class="pad-note">
-        <span>🌀 Hollow Pad · 2× Sine + Triangle</span>
+        <span>🌀 Hollow Sine Pad · LP 220Hz</span>
         <span style="margin-left:auto"><b>GLIDE 1.5s</b></span>
       </div>
     </div>
   </section>
 
-  <!-- ====================== CENAS DE CULTO ======================= -->
+  <!-- ================= FAVORITOS (ACESSO RÁPIDO) ================= -->
   <section class="section">
     <div class="section-head">
-      <div class="section-title">Cenas de Culto</div>
-      <div class="section-hint">arraste →</div>
+      <div class="section-title">Favoritos (Acesso Rápido)</div>
+      <div class="section-hint" id="favHint">4 pads · toque em 📁</div>
     </div>
 
-    <div class="scenes" id="sceneBar">
-      <button class="chip" data-scene="1"><span class="num">01</span>INTRO / AMBIÊNCIA</button>
-      <button class="chip active" data-scene="2"><span class="num">02</span>VERSO SUAVE</button>
-      <button class="chip" data-scene="3"><span class="num">03</span>REFRÃO FORTE</button>
-      <button class="chip" data-scene="4"><span class="num">04</span>ESPONTÂNEO</button>
+    <div class="favs" id="favGrid">
+      <button class="pad" style="--cat:#f59e0b" data-id="fav1">
+        <span class="tag">Fav</span><span class="emoji">⭐</span><span class="name">Favorito 1</span>
+        <label class="import-file" title="Importar áudio para este favorito (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="fav1" aria-label="Importar áudio para Favorito 1"></label>
+      </button>
+      <button class="pad" style="--cat:#f59e0b" data-id="fav2">
+        <span class="tag">Fav</span><span class="emoji">🌟</span><span class="name">Favorito 2</span>
+        <label class="import-file" title="Importar áudio para este favorito (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="fav2" aria-label="Importar áudio para Favorito 2"></label>
+      </button>
+      <button class="pad" style="--cat:#f59e0b" data-id="fav3">
+        <span class="tag">Fav</span><span class="emoji">💎</span><span class="name">Favorito 3</span>
+        <label class="import-file" title="Importar áudio para este favorito (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="fav3" aria-label="Importar áudio para Favorito 3"></label>
+      </button>
+      <button class="pad" style="--cat:#f59e0b" data-id="fav4">
+        <span class="tag">Fav</span><span class="emoji">🎯</span><span class="name">Favorito 4</span>
+        <label class="import-file" title="Importar áudio para este favorito (segure para remover)"><span>📁</span><input type="file" accept="audio/*" data-for="fav4" aria-label="Importar áudio para Favorito 4"></label>
+      </button>
     </div>
   </section>
 
@@ -815,7 +845,7 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
   </section>
 
   <div class="footer">
-    Worship Stage FX Pro · Hollow Space Pad + 16 FX<br>
+    Worship Stage FX Pro · Hollow Sine Pad + 16 FX + 4 Favoritos<br>
     PWA instalável · samples próprios salvos no celular
   </div>
 </main>
@@ -834,11 +864,13 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
 
 <script>
 /* ==========================================================================
-   WORSHIP STAGE FX PRO — FASE 3
-   1) Hollow Space Pad com GLIDE (2 osc Sine + 1 Triangle, filtro 320Hz + LFO)
-   2) Biblioteca de 16 Worship FX / Drums / Motion Pads (síntese nativa)
-   3) Carregador de samples próprios (.wav/.mp3) com persistência em IndexedDB
-   4) PWA instalável e 100% offline (manifest inline + service worker)
+   WORSHIP STAGE FX PRO — FASE 4
+   1) Hollow Sine Pad com GLIDE (apenas senoides puras, lowpass 220Hz, C3–B3)
+   2) Samples em loop nas 12 teclas do colchão (envelope de crossfade)
+   3) Biblioteca de 16 Worship FX / Drums / Motion Pads (síntese nativa)
+   4) 4 pads Favoritos (acesso rápido, âmbar) — samples próprios
+   5) Carregador de samples (.wav/.mp3) com persistência em IndexedDB
+   6) PWA instalável e 100% offline (manifest inline + service worker)
    ========================================================================== */
 (function () {
   'use strict';
@@ -858,6 +890,7 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
 
   var voices = new Set();       // vozes dos pads (limpeza automática)
   var padEngine = null;         // motor único do colchão (nunca é recriado)
+  var toneSampleVoices = [];    // samples em loop nas teclas do colchão
   var activeNote = null, glideFrom = null, glideTimer = null;
   var actionVersion = 0;        // invalida notas pendentes durante resume()
 
@@ -865,10 +898,11 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
   var pendingSamples = new Map();  // id -> {name,type,data} aguardando decode
   var padLabels = {};              // id -> nome visível no pad
 
+  /* Oitava média (notação Yamaha C3–B3 = 261.63–493.88 Hz). Tira o grave de contrabaixo. */
   var frequencies = {
-    'C': 130.81, 'C#': 138.59, 'D': 146.83, 'D#': 155.56,
-    'E': 164.81, 'F': 174.61, 'F#': 185.00, 'G': 196.00,
-    'G#': 207.65, 'A': 220.00, 'A#': 233.08, 'B': 246.94
+    'C': 261.63, 'C#': 277.18, 'D': 293.66, 'D#': 311.13,
+    'E': 329.63, 'F': 349.23, 'F#': 369.99, 'G': 392.00,
+    'G#': 415.30, 'A': 440.00, 'A#': 466.16, 'B': 493.88
   };
 
   var $ = function (id) { return document.getElementById(id); };
@@ -959,9 +993,10 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
   document.addEventListener('click', unlockAudio, { capture: true });
   document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
 
-  /* ============ 2. HOLLOW SPACE PAD (MOTOR ÚNICO + GLIDE 1.5s) ==========
-     Os osciladores são criados UMA vez e nunca são destruídos enquanto o
-     colchão estiver ligado. Trocar de nota apenas desliza a frequência:
+  /* ============ 2. HOLLOW SINE PAD (MOTOR ÚNICO + GLIDE 1.5s) ==========
+     Apenas ondas senoidais puras (zero triangle/saw → zero metálico).
+     Lowpass Biquad muito fechado em 220Hz: sub-grave/médio abafado, aveludado.
+     Os osciladores são criados UMA vez. Trocar de nota apenas desliza:
          osc.frequency.linearRampToValueAtTime(novaFreq, now + 1.5)
      ==================================================================== */
 
@@ -975,16 +1010,16 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
     this.sum = audioCtx.createGain();
     this.sum.gain.value = 1;
 
-    /* --- 2x Onda Senoidal + 1x Onda Triangular (corpo oco e aveludado) --- */
+    /* --- APENAS senoides puras (Hollow / Sine Pad aveludado) --- */
     this.oscs = [
-      { type: 'sine',     ratio: 1,    detune: -7, level: 0.50 }, // fundamental
-      { type: 'sine',     ratio: 1,    detune: +7, level: 0.50 }, // batimento suave
-      { type: 'triangle', ratio: 0.5,  detune: 0,  level: 0.42 }  // sub-ovo (hollow)
+      { type: 'sine', ratio: 1, detune:  0, level: 0.52 }, // fundamental
+      { type: 'sine', ratio: 1, detune: -6, level: 0.38 }, // coro suave
+      { type: 'sine', ratio: 1, detune: +6, level: 0.38 }
     ].map(function (cfg) {
       var osc = audioCtx.createOscillator();
       var g = audioCtx.createGain();
-      osc.type = cfg.type;
-      osc.frequency.value = 130.81 * cfg.ratio;
+      osc.type = 'sine';
+      osc.frequency.value = 261.63 * cfg.ratio;
       osc.detune.value = cfg.detune;
       g.gain.value = cfg.level;
       osc.connect(g);
@@ -993,34 +1028,17 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
       return { osc: osc, gain: g, ratio: cfg.ratio, cfg: cfg };
     });
 
-    /* --- Filtro de 320Hz: lowpass + notch em série, bandpass em paralelo --- */
+    /* --- Lowpass muito fechado em 220Hz (Q baixo = sem ressonância metálica) --- */
     this.lp = audioCtx.createBiquadFilter();
     this.lp.type = 'lowpass';
-    this.lp.frequency.value = 320;
-    this.lp.Q.value = 0.7;
-
-    this.notch = audioCtx.createBiquadFilter();
-    this.notch.type = 'notch';
-    this.notch.frequency.value = 620;   // "escava" o médio -> som oco
-    this.notch.Q.value = 1.1;
-
-    this.bp = audioCtx.createBiquadFilter();
-    this.bp.type = 'bandpass';
-    this.bp.frequency.value = 320;
-    this.bp.Q.value = 1.0;
-
-    this.bpGain = audioCtx.createGain();
-    this.bpGain.gain.value = 0.16;      // brilho oco, bem discreto
+    this.lp.frequency.value = 220;
+    this.lp.Q.value = 0.5;
 
     this.toneGain = audioCtx.createGain();
-    this.toneGain.gain.value = 0.55;
+    this.toneGain.gain.value = 0.72;
 
     this.sum.connect(this.lp);
-    this.lp.connect(this.notch);
-    this.notch.connect(this.toneGain);
-    this.sum.connect(this.bp);
-    this.bp.connect(this.bpGain);
-    this.bpGain.connect(this.toneGain);
+    this.lp.connect(this.toneGain);
 
     /* --- Movimento espacial --- */
     this.panner = audioCtx.createStereoPanner ? audioCtx.createStereoPanner() : null;
@@ -1037,29 +1055,18 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
 
     // Envio de ambiente (espaço, sem borrar o ataque)
     this.revSend = audioCtx.createGain();
-    this.revSend.gain.value = 0.20;
+    this.revSend.gain.value = 0.16;
     this.env.connect(this.revSend);
     this.revSend.connect(reverbIn);
 
-    /* --- LFOs ultra-lentos (movimento contínuo) --- */
-    // LFO 0.2Hz: abre/fecha o filtro de 320Hz (respiração do pad)
+    /* --- LFOs ultra-lentos (movimento contínuo, filtro permanece fechado) --- */
     this.lfo = audioCtx.createOscillator();
     this.lfo.type = 'sine';
     this.lfo.frequency.value = 0.2;               // 0.2 Hz — 1 ciclo a cada 5s
     this.lfoDepth = audioCtx.createGain();
-    this.lfoDepth.gain.value = 110;               // ±110Hz no lowpass
+    this.lfoDepth.gain.value = 18;                // ±18Hz em torno de 220Hz
     this.lfo.connect(this.lfoDepth);
     this.lfoDepth.connect(this.lp.frequency);
-
-    this.lfoBp = audioCtx.createGain();
-    this.lfoBp.gain.value = 70;                   // ±70Hz no bandpass
-    this.lfoDepth.connect(this.lfoBp);
-    this.lfoBp.connect(this.bp.frequency);
-
-    this.lfoNotch = audioCtx.createGain();
-    this.lfoNotch.gain.value = -45;
-    this.lfoDepth.connect(this.lfoNotch);
-    this.lfoNotch.connect(this.notch.frequency);
 
     // LFO espacial: passeio estéreo quase imperceptível (0.05Hz)
     if (this.panner) {
@@ -1067,22 +1074,22 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
       this.lfoPan.type = 'sine';
       this.lfoPan.frequency.value = 0.05;
       this.lfoPanDepth = audioCtx.createGain();
-      this.lfoPanDepth.gain.value = 0.5;
+      this.lfoPanDepth.gain.value = 0.4;
       this.lfoPan.connect(this.lfoPanDepth);
       this.lfoPanDepth.connect(this.panner.pan);
       this.lfoPan.start(t0);
     }
 
-    // LFO de detune oposto: coro lento entre as duas senoides (0.09Hz)
+    // LFO de detune oposto: coro lento entre as senoides laterais (0.09Hz)
     this.lfoDet = audioCtx.createOscillator();
     this.lfoDet.type = 'sine';
     this.lfoDet.frequency.value = 0.09;
-    this.lfoDetA = audioCtx.createGain(); this.lfoDetA.gain.value = 9;
-    this.lfoDetB = audioCtx.createGain(); this.lfoDetB.gain.value = -9;
+    this.lfoDetA = audioCtx.createGain(); this.lfoDetA.gain.value = 5;
+    this.lfoDetB = audioCtx.createGain(); this.lfoDetB.gain.value = -5;
     this.lfoDet.connect(this.lfoDetA);
     this.lfoDet.connect(this.lfoDetB);
-    this.lfoDetA.connect(this.oscs[0].osc.detune);
-    this.lfoDetB.connect(this.oscs[1].osc.detune);
+    this.lfoDetA.connect(this.oscs[1].osc.detune);
+    this.lfoDetB.connect(this.oscs[2].osc.detune);
 
     this.lfo.start(t0);
     this.lfoDet.start(t0);
@@ -1179,14 +1186,69 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
     });
     if (!toneHint) return;
     if (glideFrom && activeNote) toneHint.textContent = 'GLIDE ' + glideFrom + ' → ' + activeNote;
-    else if (activeNote) toneHint.textContent = 'Sustentando: ' + activeNote;
-    else toneHint.textContent = 'Toque para sustentar';
+    else if (activeNote) {
+      var loaded = customSamples.has('tone-' + activeNote) || pendingSamples.has('tone-' + activeNote);
+      toneHint.textContent = 'Sustentando: ' + activeNote + (loaded ? ' · sample' : '');
+    } else toneHint.textContent = 'Toque para sustentar';
   }
 
   function clearGlide() {
     if (glideTimer) { clearTimeout(glideTimer); glideTimer = null; }
     glideFrom = null;
     updateToneUI();
+  }
+
+  function releaseToneSamples() {
+    toneSampleVoices.forEach(function (v) { v.release(); });
+  }
+
+  function killToneSamples() {
+    toneSampleVoices.forEach(function (v) { v.kill(); });
+    toneSampleVoices = [];
+  }
+
+  /** Sample em LOOP na tecla do colchão, com o mesmo envelope de attack/release. */
+  function startToneSample(buffer) {
+    var t = now();
+    var src = audioCtx.createBufferSource();
+    var g = audioCtx.createGain();
+    var peak = PAD_LEVEL * sampleGain(buffer);
+    src.buffer = buffer;
+    src.loop = true;
+    g.gain.setValueAtTime(MIN, t);
+    g.gain.linearRampToValueAtTime(peak * 0.65, t + PAD_ATTACK * 0.66);
+    g.gain.linearRampToValueAtTime(peak, t + PAD_ATTACK);
+    src.connect(g);
+    g.connect(masterGain);
+    src.start(t);
+
+    var voice = { src: src, env: g, releasing: false, peak: peak };
+    voice.release = function () {
+      if (voice.releasing) return;
+      voice.releasing = true;
+      var t2 = now(), gg = g.gain;
+      if (typeof gg.cancelAndHoldAtTime === 'function') gg.cancelAndHoldAtTime(t2);
+      else { var cur = gg.value; gg.cancelScheduledValues(t2); gg.setValueAtTime(cur, t2); }
+      gg.linearRampToValueAtTime(Math.max(MIN, peak * 0.35), t2 + PAD_RELEASE * 0.5);
+      gg.linearRampToValueAtTime(MIN, t2 + PAD_RELEASE);
+      gg.setValueAtTime(0, t2 + PAD_RELEASE + 0.02);
+      try { src.stop(t2 + PAD_RELEASE + 0.05); } catch (e) {}
+      setTimeout(function () {
+        try { src.disconnect(); } catch (e) {}
+        try { g.disconnect(); } catch (e) {}
+        toneSampleVoices = toneSampleVoices.filter(function (x) { return x !== voice; });
+      }, (PAD_RELEASE + 0.12) * 1000);
+    };
+    voice.kill = function () {
+      var t2 = now();
+      g.gain.cancelScheduledValues(t2);
+      g.gain.setValueAtTime(g.gain.value, t2);
+      g.gain.linearRampToValueAtTime(0, t2 + 0.06);
+      try { src.stop(t2 + 0.08); } catch (e) {}
+      voice.releasing = true;
+    };
+    toneSampleVoices.push(voice);
+    return voice;
   }
 
   async function selectNote(note) {
@@ -1200,23 +1262,39 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
       if (activeNote === note) {
         // Toca a mesma nota novamente => desliga com release de 1.5s
         padEngine.release();
+        releaseToneSamples();
         activeNote = null;
         clearGlide();
         return;
       }
 
-      var hasSound = (activeNote && padEngine.isSounding()) || (padEngine.isSounding() && !padEngine.releasing);
-      if (hasSound && activeNote) {
-        // GLIDE: um único motor, só deslizando a frequência (sem recriar nada)
-        padEngine.setFrequency(frequencies[note], true);
-        glideFrom = activeNote;
-        if (glideTimer) clearTimeout(glideTimer);
-        glideTimer = setTimeout(clearGlide, GLIDE_TIME * 1000 + 60);
-      } else {
-        // Primeira nota (ou retomada depois do release): entra direto e sobe o fade
-        padEngine.setFrequency(frequencies[note], false);
-        padEngine.start();
+      var nextSample = customSamples.get('tone-' + note);
+      var prevWasSample = !!(activeNote && customSamples.get('tone-' + activeNote));
+
+      if (nextSample) {
+        // Sample próprio: loop + envelope de crossfade (solta o anterior, ataca o novo)
+        if (padEngine.isSounding()) padEngine.release();
+        releaseToneSamples();
+        startToneSample(nextSample);
         clearGlide();
+      } else {
+        releaseToneSamples();
+        var hasSound = !prevWasSample && (
+          (activeNote && padEngine.isSounding()) ||
+          (padEngine.isSounding() && !padEngine.releasing)
+        );
+        if (hasSound && activeNote) {
+          // GLIDE: um único motor, só deslizando a frequência (sem recriar nada)
+          padEngine.setFrequency(frequencies[note], true);
+          glideFrom = activeNote;
+          if (glideTimer) clearTimeout(glideTimer);
+          glideTimer = setTimeout(clearGlide, GLIDE_TIME * 1000 + 60);
+        } else {
+          // Primeira nota (ou retomada depois do release / sample): entra direto
+          padEngine.setFrequency(frequencies[note], false);
+          padEngine.start();
+          clearGlide();
+        }
       }
       activeNote = note;
       updateToneUI();
@@ -1226,20 +1304,16 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
   }
 
   tones.forEach(function (btn) {
-    btn.addEventListener('click', function () { selectNote(btn.dataset.note); });
-  });
-  updateToneUI();
-
-  /* ======================= 5. CENAS DE CULTO =========================== */
-
-  var chips = Array.prototype.slice.call(document.querySelectorAll('.chip'));
-  chips.forEach(function (chip) {
-    chip.addEventListener('click', function () {
-      chips.forEach(function (c) { c.classList.remove('active'); });
-      chip.classList.add('active');
-      chip.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    btn.addEventListener('click', function (event) {
+      var t = event.target;
+      while (t && t !== btn) {
+        if (t.classList && t.classList.contains('import-file')) return;
+        t = t.parentNode;
+      }
+      selectNote(btn.dataset.note);
     });
   });
+  updateToneUI();
 
   /* ============ 6. BIBLIOTECA DOS 16 WORSHIP FX / DRUMS ================ */
 
@@ -1574,6 +1648,11 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
     var nameEl = pad.querySelector('.name');
     padLabels[pad.dataset.id] = nameEl ? nameEl.textContent.trim() : pad.dataset.id;
   });
+  tones.forEach(function (btn) {
+    if (!btn.dataset.id) return;
+    padById[btn.dataset.id] = btn;
+    padLabels[btn.dataset.id] = 'Colchão ' + btn.dataset.note;
+  });
 
   function flashPad(pad) {
     pad.classList.remove('trigger');
@@ -1618,12 +1697,16 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
       if (sample) {
         playSample(sample);
         padHint.textContent = label + ' · sample próprio';
+        if (id.indexOf('fav') === 0 && $('favHint')) $('favHint').textContent = label + ' · sample';
         return;
       }
       var synth = SYNTHS[id];
       if (synth) {
         synth();
         padHint.textContent = label + ' · síntese';
+      } else if (id.indexOf('fav') === 0) {
+        if ($('favHint')) $('favHint').textContent = 'Carregue um MP3/WAV em 📁';
+        padHint.textContent = label + ' · vazio';
       }
     }).catch(reportAudioError);
   }
@@ -1748,7 +1831,7 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
     var total = customSamples.size + pendingSamples.size;
     var el = $('sampleStatus');
     if (!total) {
-      text.textContent = 'Nenhum sample próprio importado ainda — toque em 📁 em qualquer pad';
+      text.textContent = 'Nenhum sample próprio importado ainda — toque em 📁 nas teclas, favoritos ou pads';
       if (el) el.classList.remove('ok');
       return;
     }
@@ -1796,7 +1879,14 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
         });
       }).then(function () {
         updateSampleStatus();
-        toast('"' + file.name + '" no pad ' + (padLabels[id] || id) + ' · salvo offline', 'green');
+        toast('"' + file.name + '" em ' + (padLabels[id] || id) + ' · salvo offline', 'green');
+        if (pad.classList.contains('tone') && activeNote === pad.dataset.note) {
+          if (padEngine && padEngine.isSounding()) padEngine.release();
+          releaseToneSamples();
+          var buf = customSamples.get(id);
+          if (buf) startToneSample(buf);
+          updateToneUI();
+        }
       }).catch(function (err) {
         console.error(err);
         toast('Não foi possível ler esse áudio (' + file.name + ')', 'warn');
@@ -1831,10 +1921,26 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
     pad.classList.remove('loaded');
     idbDelete(id).catch(function () {});
     updateSampleStatus();
-    toast('Pad ' + (padLabels[id] || id) + ' voltou para a síntese', 'warn');
+    if (pad.classList.contains('tone')) {
+      toast('Tom ' + (pad.dataset.note || id) + ' voltou para o sine pad', 'warn');
+      if (activeNote === pad.dataset.note) {
+        releaseToneSamples();
+        if (padEngine && activeNote) {
+          padEngine.setFrequency(frequencies[activeNote], false);
+          padEngine.start();
+        }
+        updateToneUI();
+      }
+    } else if (id.indexOf('fav') === 0) {
+      toast((padLabels[id] || id) + ' limpo', 'warn');
+      if ($('favHint')) $('favHint').textContent = '4 pads · toque em 📁';
+    } else {
+      toast('Pad ' + (padLabels[id] || id) + ' voltou para a síntese', 'warn');
+    }
   }
 
   pads.forEach(setupImport);
+  tones.forEach(setupImport);
 
   /* ======================= 9. STOP ALL / EXTRAS ======================== */
 
@@ -1847,12 +1953,12 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
     }
     voices.forEach(function (voice) { voice.stopImmediately(); });
     if (padEngine) padEngine.kill();
+    killToneSamples();
     activeNote = null;
     glideFrom = null;
     if (glideTimer) { clearTimeout(glideTimer); glideTimer = null; }
     updateToneUI();
     pads.forEach(function (p) { p.classList.remove('trigger'); });
-    chips.forEach(function (chip) { chip.classList.remove('active'); });
     padHint.textContent = 'Tudo silenciado';
     if (frequencyData) frequencyData.fill(0);
     if (drawing) drawing.clearRect(0, 0, W, H);
@@ -1918,7 +2024,8 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
   function draw(ts) {
     if (!drawing) return;
     drawing.clearRect(0, 0, W, H);
-    var sounding = voices.size > 0 || (padEngine && padEngine.isSounding());
+    var sounding = voices.size > 0 || (padEngine && padEngine.isSounding()) ||
+      toneSampleVoices.some(function (v) { return !v.releasing; });
     if (analyser && audioCtx.state === 'running' && sounding) {
       analyser.getByteFrequencyData(frequencyData);
       var bw = W / frequencyData.length;
@@ -2045,7 +2152,7 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
       id: base,
       name: 'Worship Stage FX',
       short_name: 'Worship FX',
-      description: 'Hollow Space Pad com Glide, 16 pads de Louvor, samples próprios e uso 100% offline.',
+      description: 'Hollow Sine Pad com Glide, 16 pads de Louvor, 4 favoritos, samples próprios e uso 100% offline.',
       start_url: base + 'index.html',
       scope: base,
       display: 'standalone',
@@ -2088,7 +2195,7 @@ body.has-banner .toast-wrap{ bottom:calc(86px + env(safe-area-inset-bottom)); }
     './icon-192.png', './icon-512.png', './icon-maskable-512.png',
     './apple-touch-icon-180.png'
   ];
-  var SW_CACHE = 'worship-stage-fx-v3';
+  var SW_CACHE = 'worship-stage-fx-v4';
 
   // sw.js é o service worker oficial (arquivo na raiz). Esta é a cópia inline,
   // usada como rede de segurança quando a página não consegue acessar sw.js.
